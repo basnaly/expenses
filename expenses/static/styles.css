@@ -1,0 +1,22 @@
+
+html {
+    --dark-blue: #00577A;
+    --crimson: #C00056;
+    --dark-yellow: #F3D840;
+    --light-gray: #E0E5E9;
+}
+
+body {
+    font-family: 'Jost', sans-serif;
+    background-color: var(--dark-blue);
+    color: var(--light-gray);
+}
+
+.navbar {
+    background-color: var(--dark-yellow);
+    --bs-navbar-color: var(--crimson);
+}
+
+.navbar-brand {
+    --bs-navbar-brand-color: var(--crimson);
+}
