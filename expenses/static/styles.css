@@ -20,3 +20,27 @@ body {
 .navbar-brand {
     --bs-navbar-brand-color: var(--crimson);
 }
+
+.grid-2-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.btn {
+    --bs-btn-bg: var(--dark-yellow);
+    --bs-btn-color: var(--crimson);
+}
+
+.color-yellow {
+    color: var(--dark-yellow);
+}
+
+input {
+    --bs-body-bg: var(--light-gray);
+    --bs-body-color:  var(--crimson);
+}
+
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color:  var(--crimson);
+}
