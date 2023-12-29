@@ -31,6 +31,17 @@ body {
     --bs-btn-bg: var(--dark-yellow);
     --bs-btn-color: var(--crimson);
 }
+    
+.btn-profile {
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--dark-blue);
+    --bs-btn-active-bg: var(--light-gray);
+    --bs-btn-hover-bg: var(--light-gray);
+}
+
+.btn-profile:hover, .btn-profile:active, .btn-profile:focus {
+    border: 1px solid var(--bs-border-color-translucent);
+}
 
 .color-yellow {
     color: var(--dark-yellow);
@@ -44,3 +55,17 @@ input {
 .form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color:  var(--crimson);
 }
+
+.nav-link-profile {
+    --bs-nav-link-color: var(--dark-blue);
+}
+
+.dropdown-item {
+    --bs-dropdown-link-color: var(--dark-blue);
+}
+
+
+.dropdown-menu {
+    --bs-body-bg: var(--light-gray);
+}
+

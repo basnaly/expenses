@@ -4,7 +4,9 @@
 
     <div class="d-flex flex-column align-items-center">
 
-        <div class="fs-5 my-3 color-yellow">Please fill all the fields!
+        <div class="fs-5 my-4 color-yellow text-center">
+            <div>Your password must contain at least 8 characters:</div>
+            <div>uppercase, lowercase, numbers and symbols: ~!@#$%^&*-_+=.</div>
         </div>
 
         <div class="d-flex">
@@ -25,6 +27,5 @@
             <a href="{% url 'login' %}" class="color-yellow">Login here</a>
         </div>
     </div>
-
 
 {% endblock %}
