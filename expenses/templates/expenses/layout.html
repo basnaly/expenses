@@ -45,7 +45,10 @@
                         {% if user.is_authenticated %}
                       
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Features</a>
+                                <a class="nav-link" href="#">Add Payments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'add_payment_method' %}">Add Payment Methods</a>
                             </li>
 
                             <div class="dropdown dropstart">

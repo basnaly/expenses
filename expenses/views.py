@@ -1,11 +1,13 @@
 from django.shortcuts import render
-from .models import User
+from .models import User, CreditCard
 from django.contrib.auth import authenticate, login, logout
-from expenses.forms import RegisterForm, LoginForm
+from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -97,3 +99,43 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
+
+
+@login_required
+def add_payment_method(request):
+    user = User.objects.get(id=request.user.id) 
+    user_credit_cards = CreditCard.objects.filter(owner=user)
+    if request.method == "GET":
+        return render(request, "expenses/add_payment_method.html", {
+            "credit_card_form": CreditCardForm,
+            "cash_form": CashForm,
+            "credit_cards": user_credit_cards
+        })
+    
+    
+@login_required
+def add_credit_card(request):
+    user = User.objects.get(id=request.user.id) 
+    user_credit_cards = CreditCard.objects.filter(owner=user)
+    if request.method == "POST":
+        credit_card_form = CreditCardForm(request.POST)
+        if credit_card_form.is_valid():
+            card_name = credit_card_form.cleaned_data.get("card_name")
+            expiried_date = credit_card_form.cleaned_data.get("expiried_date")
+            try:
+                new_credit_card = CreditCard.objects.create(
+                    card_name = card_name,
+                    expiried_date = expiried_date,
+                    owner = user
+                )
+                new_credit_card.save()
+            except IntegrityError:
+                messages.error(request, "Something went wrong. Try again later.")
+                return HttpResponseRedirect(reverse("add_payment_method"))
+            messages.success(request, f"Your { card_name } credit card was successfully added!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+        else:
+            messages.error(request, "The form is not valid!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+                
+            

@@ -69,3 +69,17 @@ input {
     --bs-body-bg: var(--light-gray);
 }
 
+.form-select {
+    --bs-body-color: var(--crimson);
+    --bs-body-bg: var(--light-gray);
+}
+
+.table {
+    --bs-table-bg: var(--light-gray);
+    --bs-table-color: var(--crimson);
+    color: var(--crimson);
+}
+
+.table tbody {
+    --bs-table-color: var(--dark-blue);
+}

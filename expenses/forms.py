@@ -19,7 +19,7 @@ class LoginForm(forms.Form):
     
 class CreditCardForm(forms.Form):
     card_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Name of card', 'class': 'form-control mb-3'}), label='')
-    expiried_date = forms.DateField(widget=forms.DateInput(attrs={'placeholder': 'Expired date', 'class': 'form-control'}), label='')
+    expiried_date = forms.DateField(widget=forms.DateInput(attrs={'placeholder': 'Expired date', 'type': 'date', 'class': 'form-control'}), label='')
     
 
 class CashForm(forms.Form):
