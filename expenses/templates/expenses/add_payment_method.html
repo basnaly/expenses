@@ -18,7 +18,7 @@
                 </select>
             </div>
 
-            <form action="{% url 'add_credit_card' %}" method="post" id="credit_card_form" class="d-flex flex-column align-items-center d-none">
+            <form action="{% url 'create_credit_card' %}" method="post" id="credit_card_form" class="d-flex flex-column align-items-center d-none">
                 {% csrf_token %}
                 <div>
                     {{ credit_card_form }}
@@ -27,7 +27,7 @@
                 <button class="btn mt-4" type="submit">Submit</button>
             </form>
 
-            <form action="#" method="post" id="cash_form" class="d-flex flex-column align-items-center d-none">
+            <form action="{% url 'create_cash' %}" method="post" id="cash_form" class="d-flex flex-column align-items-center d-none">
                 {% csrf_token %}
                 <div>
                     {{ cash_form }}
@@ -38,13 +38,14 @@
         </div>
 
         <div class="">
-            <div class="text-center my-3">My Credit Cards</div>
+            <div class="text-center my-3 fs-5">My Credit Cards</div>
             {% if credit_cards %}
-                <table class="table text-center">
+                <table class="table text-center shadow">
                     <thead>
                         <tr class="fw-bold">
                             <th scope="col">Card Name</th>
                             <th scope="col">Expiried Date</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -52,7 +53,46 @@
                             <tr class="fw-bold">
                                 <td class="text-nowrap">{{ credit_card.card_name }}</td>
                                 <td class="text-nowrap">{{ credit_card.expiried_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <button type="button" id="delete-button" class="btn btn-sm delete-button"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal-{{ credit_card.id }}">
+
+                                        <svg viewBox="0 0 24 24" fill="none" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                            <g id="SVGRepo_iconCarrier"> 
+                                                <path d="M10 11V17" stroke="#C00056" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+                                                <path d="M14 11V17" stroke="#C00056" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+                                                <path d="M4 7H20" stroke="#C00056" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+                                                <path d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z" stroke="#C00056" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+                                                <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#C00056" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+                                            </g>
+                                        </svg>
+
+                                    </button>
+                                </td>
                             </tr>
+
+                            <div class="modal fade" id="deleteModal-{{ credit_card.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Credit Card</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div>Are you shure you want to delete your
+                                                <span class="fs-5 ms-1">{{ credit_card.card_name }}</span> credit card?
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" onClick="deleteCreditCard('{{ credit_card.id }}'); return false;" id="delete-credit-card">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -60,7 +100,34 @@
         </div>
 
         <div>
-            <div class="text-center my-3">My Cash</div>
+            <div class="text-center my-3 fs-5">My Cash</div>
+            {% if cash_items %}
+                <table class="table text-center shadow">
+                    <thead>
+                        <tr class="fw-bold">
+                            <th scope="col">Currency</th>
+                            <th scope="col">Today's Reminder</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for cash_item in cash_items %}
+                            <tr class="fw-bold">
+                                <td class="text-nowrap">{{ cash_item.currency }}</td>
+                                <td class="text-nowrap">{{ cash_item.reminder|floatformat:2 }}</td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                          Show
+                                        </label>
+                                      </div>    
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 

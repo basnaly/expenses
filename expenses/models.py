@@ -19,8 +19,8 @@ class CreditCard(models.Model):
 
 
 class Cash(models.Model):
-    currency: models.CharField(max_length=12)
-    reminder: models.FloatField()
+    currency = models.CharField(max_length=16)
+    reminder = models.FloatField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="currencies")
     
     def __str__(self):

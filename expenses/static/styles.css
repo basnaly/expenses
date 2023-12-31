@@ -83,3 +83,8 @@ input {
 .table tbody {
     --bs-table-color: var(--dark-blue);
 }
+
+.delete-button {
+    --bs-btn-bg: transparent;
+    --bs-btn-padding-y: 0rem;
+}

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import User, CreditCard
+from .models import User, CreditCard, Cash
 from django.contrib.auth import authenticate, login, logout
 from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm
 from django.http import HttpResponseRedirect, JsonResponse
@@ -105,16 +105,18 @@ def logout_view(request):
 def add_payment_method(request):
     user = User.objects.get(id=request.user.id) 
     user_credit_cards = CreditCard.objects.filter(owner=user)
+    user_cash_items = Cash.objects.filter(owner=user)
     if request.method == "GET":
         return render(request, "expenses/add_payment_method.html", {
             "credit_card_form": CreditCardForm,
             "cash_form": CashForm,
-            "credit_cards": user_credit_cards
+            "credit_cards": user_credit_cards,
+            "cash_items": user_cash_items
         })
     
     
 @login_required
-def add_credit_card(request):
+def create_credit_card(request):
     user = User.objects.get(id=request.user.id) 
     user_credit_cards = CreditCard.objects.filter(owner=user)
     if request.method == "POST":
@@ -138,4 +140,50 @@ def add_credit_card(request):
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
                 
-            
+
+@login_required
+def create_cash(request):
+    user = User.objects.get(id=request.user.id) 
+    user_cash_items = Cash.objects.filter(owner=user)
+    if request.method == "POST":    
+        cash_form = CashForm(request.POST)
+        if cash_form.is_valid():
+            currency = cash_form.cleaned_data.get("currency")
+            reminder = cash_form.cleaned_data.get("reminder")
+            try:
+                new_cash = Cash.objects.create(
+                    currency = currency,
+                    reminder = reminder,
+                    owner = user
+                )
+                new_cash.save()
+            except IntegrityError:
+                messages.error(request, "Something went wrong. Try again later")
+                return HttpResponseRedirect(reverse("add_payment_method"))
+            messages.success(request, f"Your { currency } cash was succefully created!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+        else:
+            messages.error(request, "The form is not valid!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+        
+        
+@login_required
+def delete_credit_card(request, name):
+    user = User(id=request.user.id)
+    try:
+        credit_card = CreditCard.objects.filter(owner=user, id=name)
+    except CreditCard.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your credit card!"
+        })
+        
+    if request.method == "DELETE":
+        try:
+            credit_card.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+    return JsonResponse({
+        "message": f"Your { credit_card } credit card was succesfully deleted!"
+    })

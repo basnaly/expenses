@@ -15,3 +15,22 @@ function displayTypeOfPayment() {
         document.getElementById('credit_card_form').classList.add('d-none');
     }
 }
+
+function deleteCreditCard(credit_card_id) {
+    fetch(`delete_credit_card/${credit_card_id}`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
+        const messageElement = document.createElement('div');
+        messageElement.className = '';
+        messageElement.id = 'message';
+        document.querySelector('#display-items').prepend(messageElement);
+        document.querySelector('#message').innerHTML = data.message;
+
+        setTimeout(() => {
+            document.querySelector('#message').innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 10000)
+    })
+}
