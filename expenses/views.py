@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+import json
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -166,7 +168,8 @@ def create_cash(request):
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
         
-        
+ 
+@csrf_exempt       
 @login_required
 def delete_credit_card(request, name):
     user = User(id=request.user.id)
@@ -187,3 +190,27 @@ def delete_credit_card(request, name):
     return JsonResponse({
         "message": f"Your { credit_card } credit card was succesfully deleted!"
     })
+    
+    
+@csrf_exempt
+@login_required
+def add_cash(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_cash = Cash.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    add_cash = data.get('add_cash')
+    if not add_cash:
+        return JsonResponse({
+            "message": "The input cannot be empty!"
+        })
+    try:
+        user_cash.reminder = user_cash.reminder + int(add_cash)
+        user_cash.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your {user_cash.currency} cash was successfully updated!"
+    })
+        

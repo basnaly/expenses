@@ -15,4 +15,6 @@ urlpatterns = [
     
     path("delete_credit_card/<str:name>", views.delete_credit_card, name="delete_credit_card"),
     
+    path("add_cash/<str:name>", views.add_cash, name="add_cash"),
+    
 ]

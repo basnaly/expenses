@@ -7,7 +7,7 @@ html {
 }
 
 body {
-    font-family: 'Jost', sans-serif;
+    font-family: 'Rubik', sans-serif;
     background-color: var(--dark-blue);
     color: var(--light-gray);
 }
@@ -86,5 +86,61 @@ input {
 
 .delete-button {
     --bs-btn-bg: transparent;
+}
+
+.edit-button {
+    --bs-btn-bg: transparent;
     --bs-btn-padding-y: 0rem;
+}
+
+.modal-content {
+    --bs-modal-bg: var(--light-gray);
+    --bs-modal-color: var(--dark-blue);
+}
+
+.modal-cancel-btn { 
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--dark-blue);
+    --bs-btn-border-color: var(--dark-blue);
+}
+
+.modal-delete-btn { 
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--crimson);
+    --bs-btn-border-color: var(--crimson);
+}
+
+.btn:hover {
+    background-color: var(--dark-yellow);
+}
+
+.save-button {
+    --bs-btn-bg: var(--light-gray);
+    --bs-btn-color: var(--dark-blue);
+    --bs-btn-border-color: var(--dark-yellow);
+}
+
+.save-button:hover {
+    background-color: var(--crimson);
+    color: var(--light-gray);
+}
+
+.cancel-button {
+    --bs-btn-bg: var(--light-gray);
+    --bs-btn-color: var(--crimson);
+    --bs-btn-border-color: var(--dark-yellow);
+}
+
+.cancel-button:hover {
+    background-color: var(--crimson);
+    color: var(--light-gray);
+}
+
+input {
+    --bs-body-bg: var(--light-gray);
+}
+
+.input-group-text {
+    --bs-body-color: var(--dark-blue);
+    --bs-tertiary-bg: var(--light-gray);
 }
