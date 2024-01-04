@@ -34,7 +34,7 @@ class SymbolValidator(object):
     def validate(self, password, user=None):
         if not re.findall('[~!@#$%^&*\-_+=]', password):
             raise ValidationError(
-                -("The password must contain at least 1 symbol: " +
+                _("The password must contain at least 1 symbol: " +
                   "~!@#$%^&*-_+="),
                 code='password_no_symbol'
             )

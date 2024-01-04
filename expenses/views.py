@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import User, CreditCard, Cash
 from django.contrib.auth import authenticate, login, logout
-from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm
+from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm, ProfileForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import update_session_auth_hash
+
 
 # Create your views here.
 
@@ -102,6 +105,63 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
 
+
+@login_required
+def profile(request):
+    user = User.objects.get(id=request.user.id)
+    if request.method == 'GET':
+        return render(request, "expenses/profile.html", {
+            "form": ProfileForm(initial={
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            })
+        })
+    else:
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get("email")
+            first_name = form.cleaned_data.get("first_name")
+            last_name = form.cleaned_data.get("last_name")
+            current_password = form.cleaned_data.get("current_password")
+            new_password = form.cleaned_data.get("new_password")
+            confirmation = form.cleaned_data.get("confirmation")
+            
+            if not check_password(current_password, user.password):
+                messages.error(request, "The current password doesn't match.")
+                return render(request, "expenses/profile.html", {
+                    "form": form
+                })
+                
+            if new_password:
+                if new_password != confirmation:
+                    messages.error(request, "The new password does't match confirmation.")
+                    return render(request, "expenses/profile.html", {
+                        "form": form
+                    })
+                else:
+                    user.set_password(new_password)
+                    
+            try: 
+                user.email = email
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+                update_session_auth_hash(request, user)
+            except IntegrityError:
+                messages.error(request, "Something went wrong. Try again later.")
+                return render(request, "expenses/profile.html", {
+                    "form": form
+                })
+            messages.success(request, f"Your profile was successfully updated!")
+            return render(request, "expenses/profile.html", {
+                "form": form
+            })
+        else:
+            messages.error(request, "The form is not valid!")
+            return HttpResponseRedirect(reverse("profile"))
+                
+        
 
 @login_required
 def add_payment_method(request):
@@ -213,4 +273,30 @@ def add_cash(request, name):
     return JsonResponse({
         "message": f"Your {user_cash.currency} cash was successfully updated!"
     })
+    
+
+@csrf_exempt    
+@login_required
+def edit_credit_card(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_credit_card = CreditCard.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    changed_card_name = data.get('changed_card_name')
+    changed_expiried_date = data.get('changed_expiried_date')
+    if not changed_card_name or not changed_expiried_date:
+        return JsonResponse({
+            "message": "The input fields cannot be empty!"
+        })
+    try:
+        user_credit_card.card_name = changed_card_name
+        user_credit_card.expiried_date = changed_expiried_date
+        user_credit_card.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your credit card { user_credit_card.card_name } was successfully updated!"
+    })
+
         

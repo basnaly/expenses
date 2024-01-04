@@ -28,7 +28,6 @@
                     <ul class="navbar-nav d-flex w-100 justify-content-between align-items-center fs-5">
                         <li class="nav-item fs-4 fw-bold mb-1">
                             <a class="nav-link" href="/">
-
                                 <svg fill="#00577A" height="36px" width="36px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-49.08 -49.08 588.93 588.93" xml:space="preserve">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -37,7 +36,6 @@
                                         </g> 
                                     </g>
                                 </svg>
-
                                 Expenses
                             </a>
                         </li>
@@ -49,9 +47,6 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'add_payment_method' %}">Add Payment Methods</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Add Cash</a>
                             </li>
 
                             <div class="dropdown dropstart">
@@ -74,11 +69,13 @@
                                 <ul class="dropdown-menu fs-5">
                                     <li class="dropdown-item text-center">
                                         Hello, 
-                                        <span class="fw-bold">{{ user.first_name|title }}!</span>
+                                        <span style="color: var(--crimson);">
+                                            {{ user.first_name|title }}!
+                                        </span>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-item">
-                                        <a class="nav-link nav-link-profile" class="color-dark-blue" href="#">Profile</a>
+                                        <a class="nav-link nav-link-profile" class="color-dark-blue" href="{% url 'profile' %}">Profile</a>
                                     </li>
                                     <li class="dropdown-item">
                                         <a class="nav-link nav-link-profile" href="{% url 'logout' %}">Logout</a>
@@ -106,6 +103,10 @@
             <div class="d-flex flex-column" id="display-items">
                 <div id="message" class="container mt-3">
                     {% if messages %}
+
+                        {% block script %}
+                            <script src="{% static '/message.js' %}"></script>
+                        {% endblock %}
 
                         {% for message in messages %}
                             <div class="alert shadow {% if message.tags %}alert-{{ message.tags }}{% endif %}" 

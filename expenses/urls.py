@@ -8,13 +8,16 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
+    path("profile", views.profile, name="profile"),
     
     path("add_payment_method", views.add_payment_method, name="add_payment_method"),
-    path("create_credit_card", views.create_credit_card, name="create_credit_card"),
-    path("create_cash", views.create_cash, name="create_cash"),
     
+    path("create_credit_card", views.create_credit_card, name="create_credit_card"),
+    path("edit_credit_card/<str:name>", views.edit_credit_card, name="edit_credit_card"),
     path("delete_credit_card/<str:name>", views.delete_credit_card, name="delete_credit_card"),
     
+    path("create_cash", views.create_cash, name="create_cash"),
     path("add_cash/<str:name>", views.add_cash, name="add_cash"),
+    
     
 ]

@@ -144,3 +144,8 @@ input {
     --bs-body-color: var(--dark-blue);
     --bs-tertiary-bg: var(--light-gray);
 }
+
+.alert-error {
+    --bs-alert-bg: var(--light-gray);
+    --bs-alert-color: var(--dark-blue);
+}
