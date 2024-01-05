@@ -237,3 +237,130 @@ function editCreditCard(credit_card_id) {
         console.log('Error:', error);
     })
 }
+
+
+function deleteCash(cash_id) {
+
+    fetch(`delete_cash/${cash_id}`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert alert-success shadow';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            document.getElementById('message').innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+
+    })
+    .catch(error => {
+        console.log("Error:", error)
+    })
+}
+
+
+function displayEditCashForm(cash_id, cash_currency, cash_reminder) {
+
+    const parentElement = document.createElement('div');
+    parentElement.className = 'd-flex flex-column border rounded-3 p-3';
+    parentElement.id = 'edit-cash';
+    document.querySelector('#cash-table').append(parentElement);
+
+    const editElements = document.createElement('div');
+    editElements.className = 'd-flex flex-column';
+    parentElement.append(editElements);
+
+    const inputCashCurrencyGroup = document.createElement('div');
+    inputCashCurrencyGroup.className = 'input-group my-3';
+    editElements.append(inputCashCurrencyGroup);
+
+    const spanCashCurrencyElement = document.createElement('span');
+    spanCashCurrencyElement.className = 'input-group-text';
+    spanCashCurrencyElement.innerHTML = 'Currency';
+    inputCashCurrencyGroup.append(spanCashCurrencyElement);
+
+    const inputCashCurrencyElement = document.createElement('input');
+    inputCashCurrencyElement.type = 'text';    
+    inputCashCurrencyElement.className = 'form-control';
+    inputCashCurrencyElement.id = 'cash-currency';
+    inputCashCurrencyGroup.append(inputCashCurrencyElement);
+    inputCashCurrencyElement.focus();
+    inputCashCurrencyElement.value = cash_currency;
+
+    const inputReminderCashGroup = document.createElement('div');
+    inputReminderCashGroup.className = 'input-group my-3';
+    editElements.append(inputReminderCashGroup);
+
+    const spanReminderCashElement = document.createElement('span');
+    spanReminderCashElement.className = 'input-group-text';
+    spanReminderCashElement.innerHTML = 'Reminder';
+    inputReminderCashGroup.append(spanReminderCashElement);
+
+    const inputReminderCashElement = document.createElement('input');
+    inputReminderCashElement.type = 'number';    
+    inputReminderCashElement.className = 'form-control';
+    inputReminderCashElement.id = 'cash-reminder';
+    inputReminderCashGroup.append(inputReminderCashElement);
+    inputReminderCashElement.value = cash_reminder;
+
+    const buttonsElement = document.createElement('div');
+    buttonsElement.className = 'd-flex justify-content-evenly mb-2';
+    parentElement.appendChild(buttonsElement)
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'btn cancel-button m-2';
+    cancelButton.type = 'button';
+    cancelButton.innerHTML = 'Cancel'
+    buttonsElement.append(cancelButton);
+    cancelButton.addEventListener('click', () => cancelEditCash());
+
+    const saveButton = document.createElement('button');
+    saveButton.className = 'btn save-button m-2';
+    saveButton.type = 'button';
+    saveButton.innerHTML = 'Save'
+    buttonsElement.append(saveButton);
+    saveButton.addEventListener('click', () => editCash(cash_id));
+}
+
+function cancelEditCash() {
+    document.getElementById('edit-cash').remove();
+}
+
+
+function editCash(cash_id) {
+
+    const changed_cash_currency = document.getElementById('cash-currency').value;
+    const changed_cash_reminder = document.getElementById('cash-reminder').value;
+
+    fetch(`edit_cash/${cash_id}`, {
+        method: "POST",
+        body: JSON.stringify({
+            changed_cash_currency: changed_cash_currency,
+            changed_cash_reminder: changed_cash_reminder
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert shadow alert-success';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            document.getElementById('message').innerHTML = '';
+            window.location.reload(window.location.href)
+        }, 5000)
+    })
+    .catch(error => {
+        console.log("Error:", error)
+    })
+}

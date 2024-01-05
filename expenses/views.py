@@ -154,12 +154,12 @@ def profile(request):
                     "form": form
                 })
             messages.success(request, f"Your profile was successfully updated!")
-            return render(request, "expenses/profile.html", {
-                "form": form
-            })
+            return HttpResponseRedirect(reverse("index"))
         else:
             messages.error(request, "The form is not valid!")
-            return HttpResponseRedirect(reverse("profile"))
+            return render(request, "expenses/profile.html", {
+                    "form": form
+                })
                 
         
 
@@ -232,9 +232,9 @@ def create_cash(request):
 @csrf_exempt       
 @login_required
 def delete_credit_card(request, name):
-    user = User(id=request.user.id)
+    user = User.objects.get(id=request.user.id)
     try:
-        credit_card = CreditCard.objects.filter(owner=user, id=name)
+        credit_card = CreditCard.objects.get(owner=user, id=name)
     except CreditCard.DoesNotExist:
         return JsonResponse({
             "message": "It is not your credit card!"
@@ -299,4 +299,51 @@ def edit_credit_card(request, name):
         "message": f"Your credit card { user_credit_card.card_name } was successfully updated!"
     })
 
+
+@csrf_exempt
+@login_required
+def delete_cash(request, name):
+    user = User.objects.get(id=request.user.id)   
+    try:
+        cash = Cash.objects.get(owner=user, id=name)
+    except Cash.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your cash!"
+        })    
         
+    if request.method == "DELETE":
+        try:
+            cash.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+    return JsonResponse({
+        "message": f"Your {cash.currency} cash was successfully deleted!"
+    })
+    
+
+@csrf_exempt  
+@login_required
+def edit_cash(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_cash = Cash.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    changed_cash_currency = data.get("changed_cash_currency")
+    changed_cash_reminder = data.get("changed_cash_reminder")
+    if not changed_cash_currency or not changed_cash_reminder:
+        return JsonResponse({
+            "message": "The input fields cannot be empty!"
+        })
+    
+    try:
+        user_cash.currency = changed_cash_currency
+        user_cash.reminder = changed_cash_reminder
+        user_cash.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your {user_cash.currency} cash was successfully updated!"
+    })
