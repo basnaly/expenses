@@ -267,6 +267,11 @@ function deleteCash(cash_id) {
 
 function displayEditCashForm(cash_id, cash_currency, cash_reminder) {
 
+    const exsistingForm = document.getElementById('edit-cash');
+    if (exsistingForm) {
+        exsistingForm.remove();
+    }
+
     const parentElement = document.createElement('div');
     parentElement.className = 'd-flex flex-column border rounded-3 p-3';
     parentElement.id = 'edit-cash';

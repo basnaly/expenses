@@ -21,5 +21,5 @@ urlpatterns = [
     path("edit_cash/<str:name>", views.edit_cash, name="edit_cash"),
     path("delete_cash/<str:name>", views.delete_cash, name="delete_cash"),
     
-    
+    path("create_payment", views.create_payment, name="create_payment"),
 ]

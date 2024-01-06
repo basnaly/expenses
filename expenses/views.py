@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import User, CreditCard, Cash
 from django.contrib.auth import authenticate, login, logout
-from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm, ProfileForm
+from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm, ProfileForm, PaymentForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
@@ -347,3 +347,12 @@ def edit_cash(request, name):
     return JsonResponse({
         "message": f"Your {user_cash.currency} cash was successfully updated!"
     })
+    
+    
+@login_required
+def create_payment(request):
+    user = User.objects.get(id=request.user.id)
+    if request.method == 'GET':
+        return render(request, "expenses/payment.html", {
+            "form": PaymentForm
+        })
