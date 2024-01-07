@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import User, CreditCard, Cash
+from .models import User, CreditCard, Cash, Payment
 from django.contrib.auth import authenticate, login, logout
 from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm, ProfileForm, PaymentForm
 from django.http import HttpResponseRedirect, JsonResponse
@@ -12,12 +12,17 @@ import json
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
+from datetime import datetime
 
 
 # Create your views here.
 
 def index(request):
+    user = User.objects.get(id=request.user.id)
+    user_payments = Payment.objects.filter(owner=user)
+
     return render(request, "expenses/index.html", {
+        "payments": user_payments,
         
     })
     
@@ -352,7 +357,63 @@ def edit_cash(request, name):
 @login_required
 def create_payment(request):
     user = User.objects.get(id=request.user.id)
+    user_payments = Payment.objects.filter(owner=user)
+    
+    user_credit_cards = CreditCard.objects.filter(owner=user).values('card_name', 'id')
+    credit_card_options = [(el['id'], el['card_name']) for el in user_credit_cards]
+    
+    user_cash = Cash.objects.filter(owner=user).values('currency', 'id')
+    cash_options = [(el['id'], el['currency']) for el in user_cash]
+    
     if request.method == 'GET':
+        form = PaymentForm()
+        form.fields['credit_card'].widget.choices = credit_card_options
+        form.fields['cash'].widget.choices = cash_options
         return render(request, "expenses/payment.html", {
-            "form": PaymentForm
+            "form": form,
+            "payments": user_payments
         })
+        
+    else:
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            payment_date = form.cleaned_data.get("payment_date")
+            place = form.cleaned_data.get("place")
+            purchase_type = form.cleaned_data.get("purchase_type")
+            credit_card = form.cleaned_data.get("credit_card")
+            credit_card_amount = form.cleaned_data.get("credit_card_amount")
+            cash = form.cleaned_data.get("cash")
+            cash_amount = form.cleaned_data.get("cash_amount")
+            note = form.cleaned_data.get("note")
+            
+            # get object of CreditCard or Cash by id (foreign key)
+            user_credit_card = CreditCard.objects.get(owner=user, id=credit_card)
+            user_cash = Cash.objects.get(owner=user, id=cash)
+            try:
+                new_payment = Payment.objects.create(
+                    payment_date = payment_date,
+                    place = place,
+                    purchase_type = purchase_type,
+                    credit_card = user_credit_card,
+                    credit_card_amount = credit_card_amount,
+                    cash = user_cash,
+                    cash_amount = cash_amount,
+                    note = note,
+                    owner = user
+                )
+                new_payment.save()
+            except IntegrityError as e:
+                print(e)
+                messages.error(request, "Something went wrong. Try again later.")
+                return render(request, "expenses/payment.html", {
+                    "form": form,
+                    "payments": user_payments
+                })
+            messages.success(request, f"Your payment for {purchase_type} was successfully created")
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            messages.error(request, "The form is not valid!")
+            return render(request, "expenses/payment.html", {
+                "form": form,
+                "payments": user_payments
+            })

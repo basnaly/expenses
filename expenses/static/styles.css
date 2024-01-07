@@ -149,3 +149,13 @@ input {
     --bs-alert-bg: var(--light-gray);
     --bs-alert-color: var(--dark-blue);
 }
+
+.select-data {
+    --bs-body-color: var(--crimson);
+    --bs-body-bg: var(--light-gray);
+}
+
+textarea {
+    --bs-body-bg: var(--light-gray);
+    --bs-body-color: var(--crimson);
+}

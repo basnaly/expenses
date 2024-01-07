@@ -1,6 +1,7 @@
 from django import forms
 from .models import User
 from django.contrib.auth import password_validation
+from datetime import date
 
 
 class RegisterForm(forms.Form):
@@ -37,10 +38,12 @@ class ProfileForm(forms.Form):
     
 
 class PaymentForm(forms.Form):
-    payment_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control mb-3'}), label='')
+    payment_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'max': str(date.today()), 'class': 'form-control mb-3'}), label='')
     place = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Place of payment', 'class': 'form-control mb-3'}), label='')
     purchase_type = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Type of purchase', 'class': 'form-control mb-3'}), label='')
-    credit_card =forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the credit card', 'class': 'form-control mb-3'}, choices=[]), label='')
-    cash = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the type of cash', 'class': 'form-control mb-3'}, choices=[]), label='')
-    amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), label='')
-    note = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 2, 'class': 'form-control'}), label='')
+    note = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 2, 'class': 'form-control'}), required=False, label='')
+    credit_card = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the credit card', 'class': 'form-control select-data mb-3'}, choices=[]), required=False, label='')
+    credit_card_amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), required=False, label='')
+    cash = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the type of cash', 'class': 'form-control select-data mb-3'}, choices=[]), required=False, label='')
+    cash_amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), required=False, label='')
+    

@@ -3,14 +3,17 @@
 
 {% block body %}
 
-    <div class="container d-flex justify-content-center">
+    <div class="container d-flex flex-column justify-content-center">
+        <div class="text-center fs-5 mb-5" style="color: var(--dark-yellow)">
+            Create new payment
+        </div>
 
         <form action="{% url 'create_payment' %}" method="post" 
-            class="mt-3 d-flex flex-column align-items-center">
+            class="mx-3 d-flex flex-column align-items-center">
             {% csrf_token %}
-            <div>
-                {{ form }}
-            </div>
+                <div class="grid-2-columns">
+                    {{ form }}
+                </div>
 
             <button class="btn mt-4" type="Submit">
                 Submit
