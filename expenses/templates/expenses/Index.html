@@ -2,9 +2,27 @@
 {% load static %}
 
 {% block body %}
+
+    {% block script %}
+        <script src="{% static '/index.js' %}"></script>
+
+    {% endblock %}
+
     <div class="d-flex justify-content-center">
-        <div>
+        <div class="d-flex flex-column align-items-center">
+            <div class="d-flex flex-column align-items-center mt-2">
+                <div class="text-center mb-2" style="color:var(--dark-yellow);">
+                    Select month and year to display your previous payments
+                </div>
+                <input class="form-control w-auto" type="month" max="{{ current_month_year|date:'Y-m' }}" 
+                    value="{{ selected_month_year|date:'Y-m' }}" name="select_month"
+                    id="selectMonth" onchange="getMonthAndYear()">
+            </div>
+
             {% if payments %}
+                <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
+                    Your payments in {{ current_month }} {{ current_year }}
+                </div>
                 <table class="table container shadow">
                     <thead>
                         <tr>
@@ -34,6 +52,46 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            {% endif %}
+
+            {% if selected_payments %}
+                <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
+                    Your payments in {{ selected_month }} {{ selected_year }}
+                </div>
+                <table class="table container shadow">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Where</th>
+                            <th scope="col">For</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">Credit Card</th>
+                            <th scope="col">Paid by CC</th>
+                            <th scope="col">Cash</th>
+                            <th scope="col">Paid by Cash</th>
+                        </tr>
+                    </thead>
+                        
+                    <tbody class="table-group-divider">
+                        {% for selected_payment in selected_payments %}
+                            <tr>
+                                <td>{{ selected_payment.payment_date }}</td>
+                                <td>{{ selected_payment.place }}</td>
+                                <td>{{ selected_payment.purchase_type }}</td>
+                                <td>{{ selected_payment.note }}</td>
+                                <td>{{ selected_payment.credit_card.card_name }}</td>
+                                <td>{{ selected_payment.credit_card_amount }}</td>
+                                <td>{{ selected_payment.cash.currency }}</td>
+                                <td>{{ selected_payment.cash_amount }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% else %}
+                <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
+                    Your did not have payments in {{ selected_month }} {{ selected_year }}!
+                </div> 
             {% endif %}
         </div>
     </div>

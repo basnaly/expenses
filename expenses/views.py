@@ -13,17 +13,40 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from datetime import datetime
+import calendar
 
 
 # Create your views here.
 
 def index(request):
+    
+    # get payments for current month
     user = User.objects.get(id=request.user.id)
-    user_payments = Payment.objects.filter(owner=user)
+    today = datetime.today()
+    current_month = today.month # "1"
+    current_year = today.year # "2024"
+    user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
 
+    # get payments for selected month
+    selected_month = request.GET.get("month")
+    selected_year = request.GET.get("year")
+    user_selected_payments = []
+    
+    if selected_month and selected_year:
+        selected_date = datetime.strptime(f"01-{selected_month}-{selected_year}", "%d-%m-%Y") # "2023-02-01 00:00:00"
+        print(selected_date)
+        selected_month = int(selected_month) # 1
+        user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+    
     return render(request, "expenses/index.html", {
         "payments": user_payments,
-        
+        "selected_payments": user_selected_payments,
+        "current_month": calendar.month_name[current_month], # "January"
+        "current_year": current_year, # "2024"
+        "selected_month": calendar.month_name[selected_month or current_month], # "December"
+        "selected_year": selected_year, # "2023"
+        "selected_month_year": selected_date or None,
+        "current_month_year": today # "2024-01-09 15:22:00"  
     })
     
     
