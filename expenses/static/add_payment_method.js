@@ -3,16 +3,24 @@ function displayTypeOfPayment() {
     const selectedElement = document.getElementById("selectPayment").value;
 
     if (selectedElement == '1') {
-        document.getElementById('cash_form').classList.add('d-none');
         document.getElementById('credit_card_form').classList.remove('d-none');
+        document.getElementById('cash_form').classList.add('d-none');
+        document.getElementById('debit_card_form').classList.add('d-none');
     }
     else if (selectedElement == '2') {
+        document.getElementById('debit_card_form').classList.remove('d-none');
         document.getElementById('credit_card_form').classList.add('d-none');
+        document.getElementById('cash_form').classList.add('d-none');
+    }
+    else if (selectedElement == '3') {
         document.getElementById('cash_form').classList.remove('d-none');
+        document.getElementById('credit_card_form').classList.add('d-none');
+        document.getElementById('debit_card_form').classList.add('d-none');
     }
     else {
         document.getElementById('cash_form').classList.add('d-none');
         document.getElementById('credit_card_form').classList.add('d-none');
+        document.getElementById('debit_card_form').classList.add('d-none');
     }
 }
 
@@ -175,7 +183,6 @@ function displayEditCreditCardForm(credit_card_id, credit_card_name, expired_dat
     inputExpiredDateElement.id = 'edit-expired-date';
     inputExpiredDateGroup.append(inputExpiredDateElement);
     inputExpiredDateElement.value = expired_date;
-    console.log(expired_date);
 
     const buttonsElement = document.createElement('div');
     buttonsElement.className = 'd-flex justify-content-evenly mb-2';
@@ -195,6 +202,118 @@ function displayEditCreditCardForm(credit_card_id, credit_card_name, expired_dat
     buttonsElement.append(saveButton);
     saveButton.addEventListener('click', () => editCreditCard(credit_card_id));
     
+}
+
+
+function displayEditDebitCardForm(debit_card_id, debit_card_name, debit_card_currency, debit_card_reminder, debit_card_note) {
+
+    const parentElement = document.createElement('div');
+    parentElement.className = 'd-flex flex-column border rounded-3 p-3';
+    parentElement.id = 'edit-debit-card';
+    document.querySelector('#debit-card-table').append(parentElement);
+
+    const editElements = document.createElement('div');
+    editElements.className = 'd-flex flex-column';
+    parentElement.append(editElements);
+
+    const inputCardNameGroup = document.createElement('div');
+    inputCardNameGroup.className = 'input-group my-3';
+    editElements.append(inputCardNameGroup);
+
+    const spanCardNameElement = document.createElement('span');
+    spanCardNameElement.className = 'input-group-text';
+    spanCardNameElement.innerHTML = 'Name of card';
+    inputCardNameGroup.append(spanCardNameElement);
+
+    const inputCardNameElement = document.createElement('input');
+    inputCardNameElement.type = 'text';    
+    inputCardNameElement.className = 'form-control';
+    inputCardNameElement.id = 'edit-debit-card-name';
+    inputCardNameGroup.append(inputCardNameElement);
+    inputCardNameElement.focus();
+    inputCardNameElement.value = debit_card_name;
+
+    const inputCurrencyGroup = document.createElement('div');
+    inputCurrencyGroup.className = 'input-group my-3';
+    editElements.append(inputCurrencyGroup);
+
+    const spanCurrencyElement = document.createElement('span');
+    spanCurrencyElement.className = 'input-group-text';
+    spanCurrencyElement.innerHTML = 'Currency';
+    inputCurrencyGroup.append(spanCurrencyElement);
+
+    const inputCurrencyElement = document.createElement('input');
+    inputCurrencyElement.type = 'text';    
+    inputCurrencyElement.className = 'form-control';
+    inputCurrencyElement.id = 'edit-currency';
+    inputCurrencyGroup.append(inputCurrencyElement);
+    inputCurrencyElement.value = debit_card_currency;
+
+    const inputReminderGroup = document.createElement('div');
+    inputReminderGroup.className = 'input-group my-3';
+    editElements.append(inputReminderGroup);
+
+    const spanReminderElement = document.createElement('span');
+    spanReminderElement.className = 'input-group-text';
+    spanReminderElement.innerHTML = 'Currency';
+    inputReminderGroup.append(spanReminderElement);
+
+    const inputReminderElement = document.createElement('input');
+    inputReminderElement.type = 'text';    
+    inputReminderElement.className = 'form-control';
+    inputReminderElement.id = 'edit-reminder';
+    inputReminderGroup.append(inputReminderElement);
+    inputReminderElement.value = debit_card_reminder;
+
+    const inputNoteGroup = document.createElement('div');
+    inputNoteGroup.className = 'input-group my-3';
+    editElements.append(inputNoteGroup);
+
+    const spanNoteElement = document.createElement('span');
+    spanNoteElement.className = 'input-group-text';
+    spanNoteElement.innerHTML = 'Note';
+    inputNoteGroup.append(spanNoteElement);
+
+    const inputNoteElement = document.createElement('input');
+    inputNoteElement.type = 'text';    
+    inputNoteElement.className = 'form-control';
+    inputNoteElement.id = 'edit-note';
+    inputNoteGroup.append(inputNoteElement);
+    inputNoteElement.value = debit_card_note;
+
+    const buttonsElement = document.createElement('div');
+    buttonsElement.className = 'd-flex justify-content-evenly mb-2';
+    parentElement.appendChild(buttonsElement)
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'btn cancel-button m-2';
+    cancelButton.type = 'button';
+    cancelButton.innerHTML = 'Cancel'
+    buttonsElement.append(cancelButton);
+    cancelButton.addEventListener('click', () => cancelEditDebitCard());
+
+    const saveButton = document.createElement('button');
+    saveButton.className = 'btn save-button m-2';
+    saveButton.type = 'button';
+    saveButton.innerHTML = 'Save'
+    buttonsElement.append(saveButton);
+    saveButton.addEventListener('click', () => editDebitCard(debit_card_id));
+
+}
+
+function editDebitCard(debit_card_id) {
+
+}
+
+
+function deleteDebitCard(debit_card_id) {
+
+}
+
+
+function cancelEditDebitCard() {
+
+    document.getElementById('edit-debit-card').remove();
 }
 
 

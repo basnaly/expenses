@@ -18,6 +18,17 @@ class CreditCard(models.Model):
         return f"{self.card_name}, {self.expiried_date}, {self.owner}"
 
 
+class DebitCard(models.Model):
+    card_name = models.CharField(max_length=48)
+    currency = models.CharField(max_length=16)
+    reminder = models.FloatField()
+    note = models.CharField(max_length=512, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="debit_cards")
+    
+    def __str__(self):
+        return f"{self.card_name}, {self.currency}, {self.reminder}, {self.note}, {self.owner} " 
+
+
 class Cash(models.Model):
     currency = models.CharField(max_length=16)
     reminder = models.FloatField()

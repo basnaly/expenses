@@ -16,6 +16,8 @@ urlpatterns = [
     path("edit_credit_card/<str:name>", views.edit_credit_card, name="edit_credit_card"),
     path("delete_credit_card/<str:name>", views.delete_credit_card, name="delete_credit_card"),
     
+    path("create_debit_card", views.create_debit_card, name="create_debit_card"),
+    
     path("create_cash", views.create_cash, name="create_cash"),
     path("add_cash/<str:name>", views.add_cash, name="add_cash"),
     path("edit_cash/<str:name>", views.edit_cash, name="edit_cash"),

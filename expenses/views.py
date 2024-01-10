@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .models import User, CreditCard, Cash, Payment
+from .models import User, CreditCard, DebitCard, Cash, Payment
 from django.contrib.auth import authenticate, login, logout
-from expenses.forms import RegisterForm, LoginForm, CreditCardForm, CashForm, ProfileForm, PaymentForm
+from expenses.forms import RegisterForm, LoginForm, CreditCardForm, DebitCardForm, CashForm, ProfileForm, PaymentForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
@@ -195,12 +195,15 @@ def profile(request):
 def add_payment_method(request):
     user = User.objects.get(id=request.user.id) 
     user_credit_cards = CreditCard.objects.filter(owner=user)
+    user_debit_cards = DebitCard.objects.filter(owner=user)
     user_cash_items = Cash.objects.filter(owner=user)
     if request.method == "GET":
         return render(request, "expenses/add_payment_method.html", {
             "credit_card_form": CreditCardForm,
+            "debit_card_form": DebitCardForm,
             "cash_form": CashForm,
             "credit_cards": user_credit_cards,
+            "debit_cards": user_debit_cards,
             "cash_items": user_cash_items
         })
     
@@ -224,12 +227,42 @@ def create_credit_card(request):
             except IntegrityError:
                 messages.error(request, "Something went wrong. Try again later.")
                 return HttpResponseRedirect(reverse("add_payment_method"))
-            messages.success(request, f"Your { card_name } credit card was successfully added!")
+            messages.success(request, f"Your { card_name } credit card was successfully created!")
             return HttpResponseRedirect(reverse("add_payment_method"))
         else:
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
-                
+              
+              
+@login_required
+def create_debit_card(request):
+    user = User.objects.get(id=request.user.id)  
+    user_debit_cards = DebitCard.objects.filter(owner=user)
+    if request.method == "POST":
+        debit_card_form = DebitCardForm(request.POST)
+        if debit_card_form.is_valid():
+            card_name = debit_card_form.cleaned_data.get("card_name")
+            currency = debit_card_form.cleaned_data.get("currency")
+            reminder = debit_card_form.cleaned_data.get("reminder")
+            note = debit_card_form.cleaned_data.get("note")
+            try:
+                new_debit_card = DebitCard.objects.create(
+                    card_name = card_name,
+                    currency = currency,
+                    reminder = reminder,
+                    note = note,
+                    owner = user
+                )
+                new_debit_card.save()
+            except IntegrityError:
+                messages.error(request,  "Something went wrong. Try again later.")
+                return HttpResponseRedirect(reverse("add_payment_method"))
+            messages.success(request, f"Your { card_name } debit card was successfully created!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+        else:
+            messages.error(request, "The form is not valid!")
+            return HttpResponseRedirect(reverse("add_payment_method"))
+        
 
 @login_required
 def create_cash(request):
