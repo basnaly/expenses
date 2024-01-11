@@ -16,39 +16,40 @@ from datetime import datetime
 import calendar
 
 
-# Create your views here.
-
 def index(request):
     
     # get payments for current month
-    user = User.objects.get(id=request.user.id)
-    today = datetime.today()
-    current_month = today.month # "1"
-    current_year = today.year # "2024"
-    selected_date = today
-    user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+    if request.user.is_authenticated:
+        user = User.objects.get(id=request.user.id)
+        today = datetime.today()
+        current_month = today.month # "1"
+        current_year = today.year # "2024"
+        selected_date = today
+        user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
 
-    # get payments for selected month
-    selected_month = request.GET.get("month")
-    selected_year = request.GET.get("year")
-    user_selected_payments = []
+        # get payments for selected month
+        selected_month = request.GET.get("month")
+        selected_year = request.GET.get("year")
+        user_selected_payments = []
     
-    if selected_month and selected_year:
-        selected_date = datetime.strptime(f"01-{selected_month}-{selected_year}", "%d-%m-%Y") # "2023-02-01 00:00:00"
-        print(selected_date)
-        selected_month = int(selected_month) # 1
-        user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
-    
-    return render(request, "expenses/index.html", {
-        "payments": user_payments,
-        "selected_payments": user_selected_payments,
-        "current_month": calendar.month_name[current_month], # "January"
-        "current_year": current_year, # "2024"
-        "selected_month": calendar.month_name[selected_month or current_month], # "December"
-        "selected_year": selected_year, # "2023"
-        "selected_month_year": selected_date or None,
-        "current_month_year": today # "2024-01-09 15:22:00"  
-    })
+        # if user selected month and year
+        if selected_month and selected_year:
+            selected_date = datetime.strptime(f"01-{selected_month}-{selected_year}", "%d-%m-%Y") # "2023-02-01 00:00:00"
+            selected_month = int(selected_month) # 1
+            user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+        
+        return render(request, "expenses/index.html", {
+            "payments": user_payments,
+            "selected_payments": user_selected_payments,
+            "current_month": calendar.month_name[current_month], # "January"
+            "current_year": current_year, # "2024"
+            "selected_month": calendar.month_name[selected_month or current_month], # "December"
+            "selected_year": selected_year, # "2023"
+            "selected_month_year": selected_date or None,
+            "current_month_year": today # "2024-01-09 15:22:00"  
+        })
+    else:
+        return render(request, "expenses/index.html", {})
     
     
 def register(request):
@@ -345,6 +346,29 @@ def edit_debit_card(request, name):
 
 @csrf_exempt
 @login_required
+def add_money_debit_card(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_debit_card = DebitCard.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    add_money = data.get("add_money")
+    if not add_money:
+        return JsonResponse({
+            "message": "The input cannot be empty!"
+        })
+    try:
+        user_debit_card.reminder = user_debit_card.reminder + int(add_money)
+        user_debit_card.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"The reminder on your {user_debit_card.card_name} debit card was successfully updated!"
+    })
+    
+    
+@csrf_exempt
+@login_required
 def delete_debit_card(request, name):
     user = User(id=request.user.id)      
     try:
@@ -475,10 +499,14 @@ def create_payment(request):
     user_cash = Cash.objects.filter(owner=user).values('currency', 'id')
     cash_options = [(el['id'], el['currency']) for el in user_cash]
     
+    user_debit_cards = DebitCard.objects.filter(owner=user).values('card_name', 'id')
+    debit_card_options = [(el['id'], el['card_name']) for el in user_debit_cards]
+    
     if request.method == 'GET':
         form = PaymentForm()
         form.fields['credit_card'].widget.choices = credit_card_options
         form.fields['cash'].widget.choices = cash_options
+        form.fields['debit_card'].widget.choices = debit_card_options
         return render(request, "expenses/payment.html", {
             "form": form,
             "payments": user_payments
@@ -495,9 +523,12 @@ def create_payment(request):
             cash = form.cleaned_data.get("cash")
             cash_amount = form.cleaned_data.get("cash_amount")
             note = form.cleaned_data.get("note")
+            debit_card = form.cleaned_data.get("debit_card")
+            debit_card_amount = form.cleaned_data.get("debit_card_amount")
             
             # get object of CreditCard or Cash by id (foreign key)
             user_credit_card = CreditCard.objects.get(owner=user, id=credit_card)
+            user_debit_card = DebitCard.objects.get(owner=user, id=debit_card)
             user_cash = Cash.objects.get(owner=user, id=cash)
             try:
                 new_payment = Payment.objects.create(
@@ -509,6 +540,8 @@ def create_payment(request):
                     cash = user_cash,
                     cash_amount = cash_amount,
                     note = note,
+                    debit_card = user_debit_card,
+                    debit_card_amount = debit_card_amount,
                     owner = user
                 )
                 new_payment.save()

@@ -48,7 +48,9 @@ class Payment(models.Model):
     cash_amount = models.FloatField(blank=True, null=True)
     note = models.CharField(max_length=512, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
+    debit_card = models.ForeignKey(DebitCard, on_delete=models.PROTECT, related_name='debit_cards', blank=True)
+    debit_card_amount = models.FloatField(blank=True, null=True)
     
     def __str__(self):
-        return f"{self.payment_date}, {self.place}, {self.purchase_type}, {self.credit_card}, {self.cash}, {self.amount}, {self.note}, {self.owner}"
+        return f"{self.payment_date}, {self.place}, {self.purchase_type}, {self.credit_card}, {self.cash}, {self.amount}, {self.note}, {self.owner}, {self.debit_card}, {self.debit_card_amount}"
     

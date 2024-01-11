@@ -159,3 +159,7 @@ textarea {
     --bs-body-bg: var(--light-gray);
     --bs-body-color: var(--crimson);
 }
+
+.create-expenses {
+    color: var(--dark-yellow);
+}

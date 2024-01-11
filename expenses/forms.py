@@ -53,4 +53,5 @@ class PaymentForm(forms.Form):
     credit_card_amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), required=False, label='')
     cash = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the type of cash', 'class': 'form-control select-data mb-3'}, choices=[]), required=False, label='')
     cash_amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), required=False, label='')
-    
+    debit_card = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the debit card', 'class': 'form-control select-data mb-3'}, choices=[]), required=False, label='')
+    debit_card_amount = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'The sum', 'class': 'form-control mb-3'}), required=False, label='')

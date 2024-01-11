@@ -17,6 +17,7 @@ urlpatterns = [
     path("delete_credit_card/<str:name>", views.delete_credit_card, name="delete_credit_card"),
     
     path("create_debit_card", views.create_debit_card, name="create_debit_card"),
+    path("add_money_debit_card/<str:name>", views.add_money_debit_card, name="add_money_debit_card"),
     path("edit_debit_card/<str:name>", views.edit_debit_card, name="edit_debit_card"),
     path("delete_debit_card/<str:name>", views.delete_debit_card, name="delete_debit_card"),
     

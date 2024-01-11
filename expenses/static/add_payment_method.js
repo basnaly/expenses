@@ -261,8 +261,87 @@ function displayEditDebitCardForm(debit_card_id, debit_card_name, debit_card_cur
 }
 
 
-function displayAddDebitCardAmountForm(debit_card_id) {
+function displayAddDebitCardAmountForm(debit_card_id, debit_card_currency, debit_card_card_name) {
 
+    const existingForm = document.getElementById('show-add-amount-debit');
+    if (existingForm) {
+        existingForm.remove();
+    }
+
+    const parentElement = document.createElement('div');
+    parentElement.className = 'd-flex flex-column border rounded-3 p-3 shadow';
+    parentElement.id = 'show-add-amount-debit';
+    document.getElementById('debit-card-table').append(parentElement);
+
+    const inputAmountDebitCardGroup = document.createElement('div');
+    inputAmountDebitCardGroup.className = 'input-group my-3';
+    parentElement.append(inputAmountDebitCardGroup);
+
+    const spanAmountDebitCard = document.createElement('span');
+    spanAmountDebitCard.className = 'input-group-text';
+    spanAmountDebitCard.innerHTML = `Add ${ debit_card_currency } on ${debit_card_card_name} card`;
+    inputAmountDebitCardGroup.append(spanAmountDebitCard);
+
+    const inputAmountDebitCard = document.createElement('input');
+    inputAmountDebitCard.className = 'form-control';
+    inputAmountDebitCard.id = 'add-amount-debit-card';
+    inputAmountDebitCardGroup.append(inputAmountDebitCard);
+    inputAmountDebitCard.focus();
+
+    const buttonsElement = document.createElement('div');
+    buttonsElement.className = 'd-flex justify-content-evenly mb-2';
+    parentElement.append(buttonsElement);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'btn cancel-button m-2';
+    cancelButton.type = 'button';
+    cancelButton.innerHTML = 'Cancel';
+    buttonsElement.append(cancelButton);
+    cancelButton.addEventListener('click', () => cancelAddAmountDebitCard());
+
+
+    const saveButton = document.createElement('button');
+    saveButton.className = 'btn save-button m-2';
+    saveButton.type = 'button';
+    saveButton.innerHTML = 'Save';
+    buttonsElement.append(saveButton);
+    saveButton.addEventListener('click', () => saveAddAmountDebitCard(debit_card_id))
+}
+
+
+function cancelAddAmountDebitCard() {
+    document.getElementById('show-add-amount-debit').remove
+}
+
+
+function saveAddAmountDebitCard(debit_card_id) {
+
+    const add_money = document.getElementById('add-amount-debit-card').value;
+
+    fetch(`add_money_debit_card/${debit_card_id}`, {
+        method: "POST",
+        body: JSON.stringify({
+            add_money: add_money
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert shadow alert-success';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            messageElement.innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+
+    })
+    .catch(error => {
+        "Error:", error
+    })
 }
 
 
