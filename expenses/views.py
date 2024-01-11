@@ -25,6 +25,7 @@ def index(request):
     today = datetime.today()
     current_month = today.month # "1"
     current_year = today.year # "2024"
+    selected_date = today
     user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
 
     # get payments for selected month
@@ -233,7 +234,55 @@ def create_credit_card(request):
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
               
-              
+
+@csrf_exempt    
+@login_required
+def edit_credit_card(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_credit_card = CreditCard.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    changed_card_name = data.get('changed_card_name')
+    changed_expiried_date = data.get('changed_expiried_date')
+    if not changed_card_name or not changed_expiried_date:
+        return JsonResponse({
+            "message": "The input fields cannot be empty!"
+        })
+    try:
+        user_credit_card.card_name = changed_card_name
+        user_credit_card.expiried_date = changed_expiried_date
+        user_credit_card.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your { user_credit_card.card_name } credit card was successfully updated!"
+    })
+
+
+@csrf_exempt       
+@login_required
+def delete_credit_card(request, name):
+    user = User.objects.get(id=request.user.id)
+    try:
+        credit_card = CreditCard.objects.get(owner=user, id=name)
+    except CreditCard.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your credit card!"
+        })
+        
+    if request.method == "DELETE":
+        try:
+            credit_card.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+    return JsonResponse({
+        "message": f"Your { credit_card } credit card was succesfully deleted!"
+    })
+
+             
 @login_required
 def create_debit_card(request):
     user = User.objects.get(id=request.user.id)  
@@ -263,6 +312,59 @@ def create_debit_card(request):
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
         
+        
+@csrf_exempt
+@login_required
+def edit_debit_card(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_debit_card = DebitCard.objects.get(owner=user, id=name)
+    
+    data = json.loads(request.body)
+    changed_card_name = data.get("changed_card_name")
+    changed_currency = data.get("changed_currency")
+    changed_reminder = data.get("changed_reminder")
+    changed_note = data.get("changed_note")
+    if not changed_card_name or not changed_currency or not changed_reminder:
+        return JsonResponse({
+            "message": "The input fields cannot be empty!"
+        })
+    try:
+        user_debit_card.card_name = changed_card_name
+        user_debit_card.currency = changed_currency
+        user_debit_card.reminder = changed_reminder
+        user_debit_card.note = changed_note
+        user_debit_card.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your { user_debit_card.card_name } debit card was successfully updated!"
+    })
+
+
+@csrf_exempt
+@login_required
+def delete_debit_card(request, name):
+    user = User(id=request.user.id)      
+    try:
+        debit_card = DebitCard.objects.get(owner=user, id=name)
+    except DebitCard.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your credit card!"
+        })
+    if request.method == "DELETE":
+        try:
+            debit_card.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+    return JsonResponse({
+        "message": f"Your { debit_card } debit card was succesfully deleted!"
+    })
+    
+    
 
 @login_required
 def create_cash(request):
@@ -289,29 +391,6 @@ def create_cash(request):
             messages.error(request, "The form is not valid!")
             return HttpResponseRedirect(reverse("add_payment_method"))
         
- 
-@csrf_exempt       
-@login_required
-def delete_credit_card(request, name):
-    user = User.objects.get(id=request.user.id)
-    try:
-        credit_card = CreditCard.objects.get(owner=user, id=name)
-    except CreditCard.DoesNotExist:
-        return JsonResponse({
-            "message": "It is not your credit card!"
-        })
-        
-    if request.method == "DELETE":
-        try:
-            credit_card.delete()
-        except IntegrityError:
-            return JsonResponse({
-                "message": "Something went wrong. Try again later."
-            })
-    return JsonResponse({
-        "message": f"Your { credit_card } credit card was succesfully deleted!"
-    })
-    
     
 @csrf_exempt
 @login_required
@@ -335,55 +414,7 @@ def add_cash(request, name):
         "message": f"Your {user_cash.currency} cash was successfully updated!"
     })
     
-
-@csrf_exempt    
-@login_required
-def edit_credit_card(request, name):
-    user = User.objects.get(id=request.user.id)
-    user_credit_card = CreditCard.objects.get(owner=user, id=name)
-    data = json.loads(request.body)
-    changed_card_name = data.get('changed_card_name')
-    changed_expiried_date = data.get('changed_expiried_date')
-    if not changed_card_name or not changed_expiried_date:
-        return JsonResponse({
-            "message": "The input fields cannot be empty!"
-        })
-    try:
-        user_credit_card.card_name = changed_card_name
-        user_credit_card.expiried_date = changed_expiried_date
-        user_credit_card.save()
-    except IntegrityError:
-        return JsonResponse({
-            "message": "Something went wrong. Try again later."
-        })
-    return JsonResponse({
-        "message": f"Your credit card { user_credit_card.card_name } was successfully updated!"
-    })
-
-
-@csrf_exempt
-@login_required
-def delete_cash(request, name):
-    user = User.objects.get(id=request.user.id)   
-    try:
-        cash = Cash.objects.get(owner=user, id=name)
-    except Cash.DoesNotExist:
-        return JsonResponse({
-            "message": "It is not your cash!"
-        })    
-        
-    if request.method == "DELETE":
-        try:
-            cash.delete()
-        except IntegrityError:
-            return JsonResponse({
-                "message": "Something went wrong. Try again later."
-            })
-    return JsonResponse({
-        "message": f"Your {cash.currency} cash was successfully deleted!"
-    })
     
-
 @csrf_exempt  
 @login_required
 def edit_cash(request, name):
@@ -407,9 +438,32 @@ def edit_cash(request, name):
         })
     return JsonResponse({
         "message": f"Your {user_cash.currency} cash was successfully updated!"
+    })    
+    
+
+@csrf_exempt
+@login_required
+def delete_cash(request, name):
+    user = User.objects.get(id=request.user.id)   
+    try:
+        cash = Cash.objects.get(owner=user, id=name)
+    except Cash.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your cash!"
+        })    
+        
+    if request.method == "DELETE":
+        try:
+            cash.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+    return JsonResponse({
+        "message": f"Your {cash.currency} cash was successfully deleted!"
     })
     
-    
+   
 @login_required
 def create_payment(request):
     user = User.objects.get(id=request.user.id)

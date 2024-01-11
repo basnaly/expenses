@@ -25,116 +25,6 @@ function displayTypeOfPayment() {
 }
 
 
-function deleteCreditCard(credit_card_id) {
-    fetch(`delete_credit_card/${credit_card_id}`, {
-        method: "DELETE"
-    })
-    .then(response => response.json())
-    .then(data => {
-    
-        const messageElement = document.createElement('div');
-        messageElement.className = 'alert shadow alert-success';
-        messageElement.role = 'alert';
-        document.querySelector('#message').append(messageElement);
-        messageElement.innerHTML = data.message;
-
-        setTimeout(() => {
-            document.querySelector('#message').innerHTML = '';
-            window.location.replace(window.location.href);
-        }, 5000)
-    })
-    .catch(error => {
-        console.log('Error:', error)
-    })
-}
-
-
-function displayCashForm(cash_id) {
-
-    const exsistingForm = document.getElementById('show-add-cash');
-    if (exsistingForm) {
-        exsistingForm.remove();
-    }
-
-    const parentElement = document.createElement('div');
-    parentElement.className = 'd-flex flex-column border rounded-3 p-3';
-    parentElement.id = 'show-add-cash';
-    document.querySelector('#cash-table').append(parentElement);
-
-    const inputGroup = document.createElement('div');
-    inputGroup.className = 'input-group my-3';
-    parentElement.append(inputGroup);
-
-    const spanElement = document.createElement('span');
-    spanElement.className = 'input-group-text';
-    spanElement.innerHTML = 'Add cash';
-    inputGroup.append(spanElement);
-
-    const inputElement = document.createElement('input');
-    inputElement.type = 'text';    
-    inputElement.className = 'form-control';
-    inputElement.id = 'add-amount-cash';
-    inputGroup.append(inputElement);
-    inputElement.focus();
-
-    const buttonsElement = document.createElement('div');
-    buttonsElement.className = 'd-flex justify-content-evenly mb-2';
-    parentElement.appendChild(buttonsElement)
-
-    const cancelButton = document.createElement('button');
-    cancelButton.className = 'btn cancel-button m-2';
-    cancelButton.type = 'button';
-    cancelButton.innerHTML = 'Cancel'
-    buttonsElement.append(cancelButton);
-    cancelButton.addEventListener('click', () => cancelAddCash());
-
-    const saveButton = document.createElement('button');
-    saveButton.className = 'btn save-button m-2';
-    saveButton.type = 'button';
-    saveButton.innerHTML = 'Save'
-    buttonsElement.append(saveButton);
-    saveButton.addEventListener('click', () => addAmountCash(cash_id));
-}
-
-
-function cancelAddCash() {
-    document.getElementById('show-add-cash').remove();
-}
-
-
-function addAmountCash(cash_id) {
-
-    const add_cash = document.getElementById('add-amount-cash').value;
-
-    fetch(`add_cash/${cash_id}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            add_cash: add_cash
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        if (data.message) {
-
-            const messageElement = document.createElement('div');
-            messageElement.className = 'alert shadow alert-success';
-            messageElement.role = 'alert';
-            document.getElementById('message').append(messageElement);
-            messageElement.innerHTML = data.message;
-
-            setTimeout(() => {
-                document.getElementById('message').innerHTML = '';
-                window.location.replace(window.location.href);
-            }, 5000)
-        }
-    })
-    .catch(error => {
-        console.log('Error:', error);
-    })
-}
-
-
 function displayEditCreditCardForm(credit_card_id, credit_card_name, expired_date) {
 
     const exsistingForm = document.getElementById('edit-credit-card');
@@ -200,12 +90,81 @@ function displayEditCreditCardForm(credit_card_id, credit_card_name, expired_dat
     saveButton.type = 'button';
     saveButton.innerHTML = 'Save'
     buttonsElement.append(saveButton);
-    saveButton.addEventListener('click', () => editCreditCard(credit_card_id));
+    saveButton.addEventListener('click', () => editCreditCard(credit_card_id));  
+}
+
+
+function editCreditCard(credit_card_id) {
+
+    const changed_card_name = document.getElementById('edit-card-name').value;
+    const changed_expiried_date = document.getElementById('edit-expired-date').value;
+
+    fetch(`edit_credit_card/${credit_card_id}`, {
+        method: 'POST',
+        body: JSON.stringify({
+            changed_card_name: changed_card_name,
+            changed_expiried_date: changed_expiried_date
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.message) {
+
+            const messageElement = document.createElement('div');
+            messageElement.className = 'alert shadow alert-success';
+            messageElement.role = 'alert';
+            document.getElementById('message').append(messageElement);
+            messageElement.innerHTML = data.message;
+
+            setTimeout(() => {
+                document.getElementById('message').innerHTML = '';
+                window.location.replace(window.location.href);
+            }, 5000)
+        }
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    })
+}
+
+
+function cancelEditCreditCard() {
+
+    document.getElementById('edit-credit-card').remove();
+}
+
+
+function deleteCreditCard(credit_card_id) {
+    fetch(`delete_credit_card/${credit_card_id}`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
     
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert shadow alert-success';
+        messageElement.role = 'alert';
+        document.querySelector('#message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            document.querySelector('#message').innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+    })
+    .catch(error => {
+        console.log('Error:', error)
+    })
 }
 
 
 function displayEditDebitCardForm(debit_card_id, debit_card_name, debit_card_currency, debit_card_reminder, debit_card_note) {
+
+    const existingForm = document.querySelector('#edit-debit-card');
+    if (existingForm) {
+        document.querySelector('#edit-debit-card').remove();
+    }
 
     const parentElement = document.createElement('div');
     parentElement.className = 'd-flex flex-column border rounded-3 p-3';
@@ -301,13 +260,45 @@ function displayEditDebitCardForm(debit_card_id, debit_card_name, debit_card_cur
 
 }
 
-function editDebitCard(debit_card_id) {
+
+function displayAddDebitCardAmountForm(debit_card_id) {
 
 }
 
 
-function deleteDebitCard(debit_card_id) {
+function editDebitCard(debit_card_id) {
 
+    const changed_card_name = document.getElementById('edit-debit-card-name').value;
+    const changed_currency = document.getElementById('edit-currency').value;
+    const changed_reminder = document.getElementById('edit-reminder').value;
+    const changed_note = document.getElementById('edit-note').value;
+
+    fetch(`edit_debit_card/${debit_card_id}`, {
+        method: "POST",
+        body: JSON.stringify({
+            changed_card_name: changed_card_name,
+            changed_currency: changed_currency,
+            changed_reminder: changed_reminder,
+            changed_note: changed_note
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert shadow alert-success';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            messageElement.innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+    })
+    .catch(error => {
+        "Error:", error
+    })
 }
 
 
@@ -317,22 +308,86 @@ function cancelEditDebitCard() {
 }
 
 
-function cancelEditCreditCard() {
+function deleteDebitCard(debit_card_id) {
 
-    document.getElementById('edit-credit-card').remove();
+    fetch(`delete_debit_card/${debit_card_id}`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert shadow alert-success';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            messageElement.innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+    })
+    .catch(error => {
+        "Error:", error
+    })
 }
 
 
-function editCreditCard(credit_card_id) {
+function displayCashForm(cash_id, cash_currency) {
 
-    const changed_card_name = document.getElementById('edit-card-name').value;
-    const changed_expiried_date = document.getElementById('edit-expired-date').value;
+    const exsistingForm = document.getElementById('show-add-cash');
+    if (exsistingForm) {
+        exsistingForm.remove();
+    }
 
-    fetch(`edit_credit_card/${credit_card_id}`, {
+    const parentElement = document.createElement('div');
+    parentElement.className = 'd-flex flex-column border rounded-3 p-3 shadow';
+    parentElement.id = 'show-add-cash';
+    document.querySelector('#cash-table').append(parentElement);
+
+    const inputGroup = document.createElement('div');
+    inputGroup.className = 'input-group my-3';
+    parentElement.append(inputGroup);
+
+    const spanElement = document.createElement('span');
+    spanElement.className = 'input-group-text';
+    spanElement.innerHTML = `Add ${ cash_currency } cash`;
+    inputGroup.append(spanElement);
+
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';    
+    inputElement.className = 'form-control';
+    inputElement.id = 'add-amount-cash';
+    inputGroup.append(inputElement);
+    inputElement.focus();
+
+    const buttonsElement = document.createElement('div');
+    buttonsElement.className = 'd-flex justify-content-evenly mb-2';
+    parentElement.appendChild(buttonsElement)
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'btn cancel-button m-2';
+    cancelButton.type = 'button';
+    cancelButton.innerHTML = 'Cancel'
+    buttonsElement.append(cancelButton);
+    cancelButton.addEventListener('click', () => cancelAddCash());
+
+    const saveButton = document.createElement('button');
+    saveButton.className = 'btn save-button m-2';
+    saveButton.type = 'button';
+    saveButton.innerHTML = 'Save'
+    buttonsElement.append(saveButton);
+    saveButton.addEventListener('click', () => addAmountCash(cash_id));
+}
+
+
+function addAmountCash(cash_id) {
+
+    const add_cash = document.getElementById('add-amount-cash').value;
+
+    fetch(`add_cash/${cash_id}`, {
         method: 'POST',
         body: JSON.stringify({
-            changed_card_name: changed_card_name,
-            changed_expiried_date: changed_expiried_date
+            add_cash: add_cash
         })
     })
     .then(response => response.json())
@@ -358,29 +413,8 @@ function editCreditCard(credit_card_id) {
 }
 
 
-function deleteCash(cash_id) {
-
-    fetch(`delete_cash/${cash_id}`, {
-        method: "DELETE"
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        const messageElement = document.createElement('div');
-        messageElement.className = 'alert alert-success shadow';
-        messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
-        messageElement.innerHTML = data.message;
-
-        setTimeout(() => {
-            document.getElementById('message').innerHTML = '';
-            window.location.replace(window.location.href);
-        }, 5000)
-
-    })
-    .catch(error => {
-        console.log("Error:", error)
-    })
+function cancelAddCash() {
+    document.getElementById('show-add-cash').remove();
 }
 
 
@@ -452,10 +486,6 @@ function displayEditCashForm(cash_id, cash_currency, cash_reminder) {
     saveButton.addEventListener('click', () => editCash(cash_id));
 }
 
-function cancelEditCash() {
-    document.getElementById('edit-cash').remove();
-}
-
 
 function editCash(cash_id) {
 
@@ -488,3 +518,34 @@ function editCash(cash_id) {
         console.log("Error:", error)
     })
 }
+
+
+function cancelEditCash() {
+    document.getElementById('edit-cash').remove();
+}
+
+
+function deleteCash(cash_id) {
+
+    fetch(`delete_cash/${cash_id}`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'alert alert-success shadow';
+        messageElement.role = 'alert';
+        document.getElementById('message').append(messageElement);
+        messageElement.innerHTML = data.message;
+
+        setTimeout(() => {
+            document.getElementById('message').innerHTML = '';
+            window.location.replace(window.location.href);
+        }, 5000)
+
+    })
+    .catch(error => {
+        console.log("Error:", error)
+    })
+}
+
