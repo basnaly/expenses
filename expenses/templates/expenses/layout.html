@@ -101,22 +101,23 @@
             </nav>
 
             <div class="d-flex flex-column" id="display-items">
-                <div id="message" class="container mt-3">
-                    {% if messages %}
+                {% if messages %}
 
-                        {% block script %}
-                            <script src="{% static '/message.js' %}"></script>
-                        {% endblock %}
+                    {% block script1 %}
+                        <script src="{% static '/message.js' %}"></script>
+                    {% endblock %}
 
+                    <div id="message" class="container mt-3">
                         {% for message in messages %}
                             <div class="alert shadow {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
-                                role="alert">
+                                role="alert"
+                            >
                                 {{ message }}
                             </div>
                         {% endfor %}
+                    </div>
                    
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
 
             {% block body %}

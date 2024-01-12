@@ -545,6 +545,10 @@ def create_payment(request):
                     owner = user
                 )
                 new_payment.save()
+                if debit_card_amount:
+                    user_debit_card.reminder = int(user_debit_card.reminder) - int(debit_card_amount)
+                    user_debit_card.save()
+                    print(user_debit_card.reminder)
             except IntegrityError as e:
                 print(e)
                 messages.error(request, "Something went wrong. Try again later.")

@@ -52,5 +52,5 @@ class Payment(models.Model):
     debit_card_amount = models.FloatField(blank=True, null=True)
     
     def __str__(self):
-        return f"{self.payment_date}, {self.place}, {self.purchase_type}, {self.credit_card}, {self.cash}, {self.amount}, {self.note}, {self.owner}, {self.debit_card}, {self.debit_card_amount}"
+        return f"{self.payment_date}, {self.place}, {self.purchase_type}, {self.credit_card}, {self.credit_card_amount}, {self.cash}, {self.cash_amount}, {self.note}, {self.owner}, {self.debit_card}, {self.debit_card_amount}"
     
