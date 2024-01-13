@@ -428,7 +428,7 @@ def add_cash(request, name):
             "message": "The input cannot be empty!"
         })
     try:
-        user_cash.reminder = user_cash.reminder + int(add_cash)
+        user_cash.reminder = user_cash.reminder + float(add_cash)
         user_cash.save()
     except IntegrityError:
         return JsonResponse({

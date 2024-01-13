@@ -47,12 +47,12 @@
                                     <td>{{ payment.place }}</td>
                                     <td>{{ payment.purchase_type }}</td>
                                     <td>{{ payment.note }}</td>
-                                    <td>{{ payment.credit_card.card_name }}</td>
-                                    <td>{{ payment.credit_card_amount }}</td>
-                                    <td>{{ payment.cash.currency }}</td>
-                                    <td>{{ payment.cash_amount }}</td>
-                                    <td>{{ payment.debit_card.card_name }}</td>
-                                    <td>{{ payment.debit_card_amount }}</td>
+                                    <td>{% if payment.credit_card_amount %} {{ payment.credit_card.card_name }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.credit_card_amount %} {{ payment.credit_card_amount }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.cash_amount %} {{ payment.cash.currency }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.cash_amount %} {{ payment.cash_amount }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.debit_card_amount %} {{ payment.debit_card.card_name }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.debit_card_amount %} {{ payment.debit_card_amount }} {% else %} - {% endif %}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -88,12 +88,12 @@
                                     <td>{{ selected_payment.place }}</td>
                                     <td>{{ selected_payment.purchase_type }}</td>
                                     <td>{{ selected_payment.note }}</td>
-                                    <td>{{ selected_payment.credit_card.card_name }}</td>
-                                    <td>{{ selected_payment.credit_card_amount }}</td>
-                                    <td>{{ selected_payment.cash.currency }}</td>
-                                    <td>{{ selected_payment.cash_amount }}</td>
-                                    <td>{{ selected_payment.debit_card.card_name }}</td>
-                                    <td>{{ selected_payment.debit_card_amount }}</td>
+                                    <td>{% if selected_payment.credit_card_amount %} {{ selected_payment.credit_card.card_name }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.credit_card_amount %} {{ selected_payment.credit_card_amount }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.cash_amount %} {{ selected_payment.cash.currency }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.cash_amount %} {{ selected_payment.cash_amount }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.debit_card_amount %} {{ selected_payment.debit_card.card_name }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.debit_card_amount %} {{ selected_payment.debit_card_amount }} {% else %} - {% endif %}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -114,11 +114,11 @@ function editCreditCard(credit_card_id) {
             const messageElement = document.createElement('div');
             messageElement.className = 'alert shadow alert-success';
             messageElement.role = 'alert';
-            document.getElementById('message').append(messageElement);
+            document.getElementById('display-items').append(messageElement);
             messageElement.innerHTML = data.message;
 
             setTimeout(() => {
-                document.getElementById('message').innerHTML = '';
+                messageElement.innerHTML = '';
                 window.location.replace(window.location.href);
             }, 5000)
         }
@@ -145,11 +145,11 @@ function deleteCreditCard(credit_card_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert shadow alert-success';
         messageElement.role = 'alert';
-        document.querySelector('#message').append(messageElement);
+        document.querySelector('#display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
-            document.querySelector('#message').innerHTML = '';
+            messageElement.innerHTML = '';
             window.location.replace(window.location.href);
         }, 5000)
     })
@@ -310,7 +310,7 @@ function displayAddDebitCardAmountForm(debit_card_id, debit_card_currency, debit
 
 
 function cancelAddAmountDebitCard() {
-    document.getElementById('show-add-amount-debit').remove
+    document.getElementById('show-add-amount-debit').remove()
 }
 
 
@@ -330,7 +330,7 @@ function saveAddAmountDebitCard(debit_card_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert shadow alert-success';
         messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
+        document.getElementById('display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
@@ -367,7 +367,7 @@ function editDebitCard(debit_card_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert shadow alert-success';
         messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
+        document.getElementById('display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
@@ -397,7 +397,7 @@ function deleteDebitCard(debit_card_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert shadow alert-success';
         messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
+        document.getElementById('display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
@@ -477,11 +477,11 @@ function addAmountCash(cash_id) {
             const messageElement = document.createElement('div');
             messageElement.className = 'alert shadow alert-success';
             messageElement.role = 'alert';
-            document.getElementById('message').append(messageElement);
+            document.getElementById('display-items').append(messageElement);
             messageElement.innerHTML = data.message;
 
             setTimeout(() => {
-                document.getElementById('message').innerHTML = '';
+                messageElement.innerHTML = '';
                 window.location.replace(window.location.href);
             }, 5000)
         }
@@ -585,11 +585,11 @@ function editCash(cash_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert shadow alert-success';
         messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
+        document.getElementById('display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
-            document.getElementById('message').innerHTML = '';
+            messageElement.innerHTML = '';
             window.location.reload(window.location.href)
         }, 5000)
     })
@@ -614,11 +614,11 @@ function deleteCash(cash_id) {
         const messageElement = document.createElement('div');
         messageElement.className = 'alert alert-success shadow';
         messageElement.role = 'alert';
-        document.getElementById('message').append(messageElement);
+        document.getElementById('display-items').append(messageElement);
         messageElement.innerHTML = data.message;
 
         setTimeout(() => {
-            document.getElementById('message').innerHTML = '';
+            messageElement.innerHTML = '';
             window.location.replace(window.location.href);
         }, 5000)
 
