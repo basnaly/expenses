@@ -99,6 +99,26 @@
                         </tbody>
                     </table>
 
+                    <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
+                        Total paid in {{ selected_month }} {{ selected_year }}
+                    </div>
+
+                    <table class="table container shadow">
+                        <thead>
+                            <tr>
+                                <th scope="col">Payment method</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="table-group-divider">
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                 {% else %}
 
                     {% if selected_year %}

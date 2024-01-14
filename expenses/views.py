@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import User, CreditCard, DebitCard, Cash, Payment
+from .models import User, Currency, CreditCard, DebitCard, Cash, Payment
 from django.contrib.auth import authenticate, login, logout
 from expenses.forms import RegisterForm, LoginForm, CreditCardForm, DebitCardForm, CashForm, ProfileForm, PaymentForm
 from django.http import HttpResponseRedirect, JsonResponse
@@ -26,6 +26,31 @@ def index(request):
         current_year = today.year # "2024"
         selected_date = today
         user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+        
+        # curent_list_payments = []
+        # for el in user_payments:
+        #     if el.credit_card not in curent_list_payments:
+        #         curent_list_payments.append(el.credit_card)
+        #     if el.cash not in curent_list_payments:
+        #         curent_list_payments.append(el.cash)
+        #     if el.debit_card not in curent_list_payments:
+        #         curent_list_payments.append(el.debit_card)  
+            
+        # for el in curent_list_payments:
+        #     if isinstance(el, CreditCard):
+        #         print(el)
+        #         print("----")
+        #         list_paiments_by_card_el = [el1 for el1 in user_payments if el1.credit_card.id == el.id and el1.credit_card_amount]
+        #         print(list_paiments_by_card_el)
+        
+        curent_payment_list = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+        
+        # current_credit_sum = sum([el.credit_card_amount or 0 for el in curent_payment_list])
+        # curent_debit_sum = sum([el.debit_card_amount or 0 for el in curent_payment_list])
+        # curent_cash_sum = sum([el.cash_amount or 0 for el in curent_payment_list])
+        
+        # print(current_credit_sum, curent_debit_sum, curent_cash_sum)
+        
 
         # get payments for selected month
         selected_month = request.GET.get("month")
@@ -199,10 +224,17 @@ def add_payment_method(request):
     user_credit_cards = CreditCard.objects.filter(owner=user)
     user_debit_cards = DebitCard.objects.filter(owner=user)
     user_cash_items = Cash.objects.filter(owner=user)
+    
+    
+    user_currencies = Currency.objects.filter(owner=user).values('name', 'id')
+    currency_options = [(el['id'], el['name']) for el in user_currencies]
+    
     if request.method == "GET":
+        debit_card_form = DebitCardForm()
+        debit_card_form.fields['currency'].widget.choices = currency_options
         return render(request, "expenses/add_payment_method.html", {
             "credit_card_form": CreditCardForm,
-            "debit_card_form": DebitCardForm,
+            "debit_card_form": debit_card_form,
             "cash_form": CashForm,
             "credit_cards": user_credit_cards,
             "debit_cards": user_debit_cards,
@@ -288,6 +320,7 @@ def delete_credit_card(request, name):
 def create_debit_card(request):
     user = User.objects.get(id=request.user.id)  
     user_debit_cards = DebitCard.objects.filter(owner=user)
+    user_currency = Currency.objects.get(owner=user)
     if request.method == "POST":
         debit_card_form = DebitCardForm(request.POST)
         if debit_card_form.is_valid():
@@ -298,7 +331,7 @@ def create_debit_card(request):
             try:
                 new_debit_card = DebitCard.objects.create(
                     card_name = card_name,
-                    currency = currency,
+                    currency = user_currency,
                     reminder = reminder,
                     note = note,
                     owner = user
