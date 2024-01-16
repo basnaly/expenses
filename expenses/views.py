@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import User, Currency, CreditCard, DebitCard, Cash, Payment
 from django.contrib.auth import authenticate, login, logout
-from expenses.forms import RegisterForm, LoginForm, CreditCardForm, DebitCardForm, CashForm, ProfileForm, PaymentForm
+from expenses.forms import RegisterForm, LoginForm, CurrencyForm, CreditCardForm, DebitCardForm, CashForm, ProfileForm, PaymentForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
@@ -17,7 +17,6 @@ import calendar
 
 
 def index(request):
-    
     # get payments for current month
     if request.user.is_authenticated:
         user = User.objects.get(id=request.user.id)
@@ -42,14 +41,6 @@ def index(request):
         #         print("----")
         #         list_paiments_by_card_el = [el1 for el1 in user_payments if el1.credit_card.id == el.id and el1.credit_card_amount]
         #         print(list_paiments_by_card_el)
-        
-        curent_payment_list = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
-        
-        # current_credit_sum = sum([el.credit_card_amount or 0 for el in curent_payment_list])
-        # curent_debit_sum = sum([el.debit_card_amount or 0 for el in curent_payment_list])
-        # curent_cash_sum = sum([el.cash_amount or 0 for el in curent_payment_list])
-        
-        # print(current_credit_sum, curent_debit_sum, curent_cash_sum)
         
 
         # get payments for selected month
@@ -225,22 +216,61 @@ def add_payment_method(request):
     user_debit_cards = DebitCard.objects.filter(owner=user)
     user_cash_items = Cash.objects.filter(owner=user)
     
-    
-    user_currencies = Currency.objects.filter(owner=user).values('name', 'id')
-    currency_options = [(el['id'], el['name']) for el in user_currencies]
+    user_currencies = Currency.objects.filter(owner=user).values('currency_name', 'id')
+    currency_options = [(el['id'], el['currency_name']) for el in user_currencies]
     
     if request.method == "GET":
         debit_card_form = DebitCardForm()
+        cash_form = CashForm()
         debit_card_form.fields['currency'].widget.choices = currency_options
+        cash_form.fields['currency'].widget.choices = currency_options
+        
         return render(request, "expenses/add_payment_method.html", {
             "credit_card_form": CreditCardForm,
             "debit_card_form": debit_card_form,
-            "cash_form": CashForm,
+            "cash_form": cash_form,
             "credit_cards": user_credit_cards,
             "debit_cards": user_debit_cards,
-            "cash_items": user_cash_items
+            "cash_items": user_cash_items,
         })
+        
+        
+@login_required
+def create_currency(request):
+    user = User.objects.get(id=request.user.id)
+    user_currencies = Currency.objects.filter(owner=user)
     
+    if request.method == "GET":
+        return render(request, "expenses/create_currency.html", {
+            "form": CurrencyForm(),
+            "currencies": user_currencies
+        })
+        
+    else:
+        form = CurrencyForm(request.POST) 
+        if form.is_valid():
+            currency_name = form.cleaned_data.get("currency_name")
+            try:
+                new_currency = Currency.objects.create(
+                    currency_name = currency_name,
+                    owner = user
+                )
+                new_currency.save()
+            except IntegrityError:
+                messages.error(request, "Something went wrong. Try again later.")
+                return render(request, "expenses/create_currency.html", {
+                    "form": form,
+                    "currencies": user_currencies
+                })
+            messages.success(request, f"Your { currency_name } currency was successfully created!")
+            return HttpResponseRedirect(reverse("create_currency"))
+        else:
+            messages.error(request, "The form is not valid!")
+            return render(request, "expenses/create_currency.html", {
+                "form": form,
+                "currencies": user_currencies
+            })
+   
     
 @login_required
 def create_credit_card(request):
@@ -319,8 +349,7 @@ def delete_credit_card(request, name):
 @login_required
 def create_debit_card(request):
     user = User.objects.get(id=request.user.id)  
-    user_debit_cards = DebitCard.objects.filter(owner=user)
-    user_currency = Currency.objects.get(owner=user)
+    
     if request.method == "POST":
         debit_card_form = DebitCardForm(request.POST)
         if debit_card_form.is_valid():
@@ -328,6 +357,9 @@ def create_debit_card(request):
             currency = debit_card_form.cleaned_data.get("currency")
             reminder = debit_card_form.cleaned_data.get("reminder")
             note = debit_card_form.cleaned_data.get("note")
+            
+            user_currency = Currency.objects.get(owner=user, id=currency)
+            
             try:
                 new_debit_card = DebitCard.objects.create(
                     card_name = card_name,
@@ -429,12 +461,15 @@ def create_cash(request):
     user_cash_items = Cash.objects.filter(owner=user)
     if request.method == "POST":    
         cash_form = CashForm(request.POST)
+       
         if cash_form.is_valid():
             currency = cash_form.cleaned_data.get("currency")
             reminder = cash_form.cleaned_data.get("reminder")
+            
+            user_currency = Currency.objects.get(owner=user, id=currency)
             try:
                 new_cash = Cash.objects.create(
-                    currency = currency,
+                    currency = user_currency,
                     reminder = reminder,
                     owner = user
                 )

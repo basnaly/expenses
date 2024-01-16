@@ -10,11 +10,11 @@ class User(AbstractUser):
     
 
 class Currency(models.Model):
-    name = models.CharField(max_length=12)
+    currency_name = models.CharField(max_length=12)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="currencies")
     
     def __str__(self):
-        return f"{self.name}, {self.owner}"
+        return f"{self.currency_name}, {self.owner}"
     
 
 class CreditCard(models.Model):

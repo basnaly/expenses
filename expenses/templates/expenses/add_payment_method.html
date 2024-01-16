@@ -145,7 +145,7 @@
                         {% for debit_card in debit_cards %}
                             <tr class="">
                                 <td class="text-nowrap">{{ debit_card.card_name }}</td>
-                                <td class="text-nowrap">{{ debit_card.currency }}</td>
+                                <td class="text-nowrap">{{ debit_card.currency.currency_name }}</td>
                                 <td class="text-nowrap">{{ debit_card.reminder }}</td>
                                 <td class="text-nowrap">{{ debit_card.note }}</td>
                                 <td class="pt-1 px-0">
@@ -235,7 +235,7 @@
                     <tbody class="table-group-divider">
                         {% for cash_item in cash_items %}
                             <tr class="">
-                                <td class="text-nowrap">{{ cash_item.currency }}</td>
+                                <td class="text-nowrap">{{ cash_item.currency.currency_name }}</td>
                                 <td class="text-nowrap">{{ cash_item.reminder|floatformat:2 }}</td>
                                 <td class="pt-1 px-0">
                                     <button type="button" id="add-cash-{{ cash_item.id }}" class="btn btn-sm edit-button"

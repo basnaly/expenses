@@ -18,6 +18,10 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'form-control'}), label='', validators=[password_validation.validate_password])
     
     
+class CurrencyForm(forms.Form):
+    currency_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Name of currency', 'class': 'form-control mb-3'}), label='')
+
+
 class CreditCardForm(forms.Form):
     card_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Name of card', 'class': 'form-control mb-3'}), label='')
     expiried_date = forms.DateField(widget=forms.DateInput(attrs={'placeholder': 'Expired date', 'type': 'date', 'class': 'form-control'}), label='')
@@ -25,13 +29,13 @@ class CreditCardForm(forms.Form):
     
 class DebitCardForm(forms.Form):
     card_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Name of card', 'class': 'form-control mb-3'}), label='')
-    currency = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the currency', 'class': 'form-control mb-3'}, choices=[]), label='')
+    currency = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the currency', 'class': 'form-control select-data mb-3'}, choices=[]), label='')
     reminder = forms.FloatField(widget=forms.NumberInput(attrs={'placeholder': 'Reminder', 'class': 'form-control mb-3'}), label='')
     note = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 2, 'cols': 20, 'class': 'form-control mb-3'}), required=False, label='')
     
 
 class CashForm(forms.Form):
-    currency = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Currency', 'class': 'form-control mb-3'}), label='')
+    currency = forms.CharField(widget=forms.Select(attrs={'placeholder': 'Select the currency', 'class': 'form-control select-data mb-3'}, choices=[]), label='')
     reminder = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder': 'Reminder', 'class': 'form-control'}), label='')
     
     
