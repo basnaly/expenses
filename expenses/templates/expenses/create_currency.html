@@ -3,6 +3,10 @@
 
 {% block body %}
 
+    {% block script %}
+        <script src="{% static '/create_currency.js' %}"></script>
+    {% endblock %}
+
     <div class="container d-flex justify-content-evenly align-items-start">
 
         <div class="d-flex flex-column justify-content-start">
@@ -40,7 +44,7 @@
                                     <td class="text-nowrap">{{ currency.currency_name }}</td>
                                     <td class="pt-0 px-0">
                                         <button type="button" id="edit-currency-{{ currency.id}}" class="btn btn-sm edit-button"
-                                            onClick="displayEditCurrencyForm('{{ currency.id }}', '{{ currency.currency_name }}' ">
+                                            onClick="displayEditCurrencyForm('{{ currency.id }}', '{{ currency.currency_name }}')">
                                             <svg viewBox="0 -0.5 25 25" fill="none" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
                                                 <g stroke-width="0"></g>
                                                 <g stroke-linecap="round" stroke-linejoin="round"></g>

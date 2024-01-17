@@ -207,7 +207,6 @@ def profile(request):
                     "form": form
                 })
                 
-        
 
 @login_required
 def add_payment_method(request):
@@ -270,8 +269,54 @@ def create_currency(request):
                 "form": form,
                 "currencies": user_currencies
             })
-   
+
+
+@csrf_exempt
+@login_required
+def edit_currency(request, name):
+    user = User.objects.get(id=request.user.id)
+    user_currency = Currency.objects.get(owner=user, id=name)
+    data = json.loads(request.body)
+    changed_currency_name = data.get("changed_currency_name")
+    if not changed_currency_name:
+        return JsonResponse({
+            "message": "The input field cannot be empty!"
+        })
+    try:
+        user_currency.currency_name = changed_currency_name
+        user_currency.save()
+    except IntegrityError:
+        return JsonResponse({
+            "message": "Something went wrong. Try again later."
+        })
+    return JsonResponse({
+        "message": f"Your { user_currency.currency_name } currency was successfully updated!"
+    })
+
+
+@csrf_exempt
+@ login_required
+def delete_currency(request, name):
+    user = User.objects.get(id=request.user.id)
+    try:
+        currency = Currency.objects.get(owner=user, id=name)
+    except Currency.DoesNotExist:
+        return JsonResponse({
+            "message": "It is not your currency!"
+        })
     
+    if request.method == "DELETE":
+        try:
+            currency.delete()
+        except IntegrityError:
+            return JsonResponse({
+                "message": "Something went wrong. Try again later."
+            })
+        return JsonResponse({
+            "message": f"Your { currency.currency_name } currency was successfully deleted!"
+        })
+
+   
 @login_required
 def create_credit_card(request):
     user = User.objects.get(id=request.user.id) 
