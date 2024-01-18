@@ -609,8 +609,8 @@ def create_payment(request):
     user_credit_cards = CreditCard.objects.filter(owner=user).values('card_name', 'id')
     credit_card_options = [(el['id'], el['card_name']) for el in user_credit_cards]
     
-    user_cash = Cash.objects.filter(owner=user).values('currency', 'id')
-    cash_options = [(el['id'], el['currency']) for el in user_cash]
+    user_currencies = Currency.objects.filter(owner=user).values('currency_name', 'id')
+    currency_options = [(el['id'], el['currency_name']) for el in user_currencies]
     
     user_debit_cards = DebitCard.objects.filter(owner=user).values('card_name', 'id')
     debit_card_options = [(el['id'], el['card_name']) for el in user_debit_cards]
@@ -618,7 +618,7 @@ def create_payment(request):
     if request.method == 'GET':
         form = PaymentForm()
         form.fields['credit_card'].widget.choices = credit_card_options
-        form.fields['cash'].widget.choices = cash_options
+        form.fields['currency'].widget.choices = currency_options
         form.fields['debit_card'].widget.choices = debit_card_options
         return render(request, "expenses/payment.html", {
             "form": form,
@@ -633,16 +633,39 @@ def create_payment(request):
             purchase_type = form.cleaned_data.get("purchase_type")
             credit_card = form.cleaned_data.get("credit_card")
             credit_card_amount = form.cleaned_data.get("credit_card_amount")
-            cash = form.cleaned_data.get("cash")
+            currency = form.cleaned_data.get("currency")
             cash_amount = form.cleaned_data.get("cash_amount")
             note = form.cleaned_data.get("note")
             debit_card = form.cleaned_data.get("debit_card")
-            debit_card_amount = form.cleaned_data.get("debit_card_amount")
+            debit_card_amount = form.cleaned_data.get("debit_card_amount", 0)
             
             # get object of CreditCard or Cash by id (foreign key)
             user_credit_card = CreditCard.objects.get(owner=user, id=credit_card)
             user_debit_card = DebitCard.objects.get(owner=user, id=debit_card)
-            user_cash = Cash.objects.get(owner=user, id=cash)
+            user_currency = Currency.objects.get(owner=user, id=currency)
+            user_cash = Cash.objects.get(owner=user, currency=user_currency)
+            
+            if debit_card_amount and int(currency) != user_debit_card.currency.id:
+                messages.error(request, "Selected currency doesn't match the currency of the debit card!")
+                return render(request, "expenses/payment.html", {
+                    "form": form,
+                    "payments": user_payments
+                })
+                
+            if debit_card_amount and float(debit_card_amount) > user_debit_card.reminder:
+                messages.error(request, "You don't have enough money on your debit card!")
+                return render(request, "expenses/payment.html", {
+                    "form": form,
+                    "payments": user_payments
+                })
+                
+            if cash_amount and float(cash_amount) > user_cash.reminder:
+                messages.error(request, "You don't have enough cash!")
+                return render(request, "expenses/payment.html", {
+                    "form": form,
+                    "payments": user_payments
+                })
+                
             try:
                 new_payment = Payment.objects.create(
                     payment_date = payment_date,
@@ -650,6 +673,7 @@ def create_payment(request):
                     purchase_type = purchase_type,
                     credit_card = user_credit_card,
                     credit_card_amount = credit_card_amount,
+                    currency = user_currency,
                     cash = user_cash,
                     cash_amount = cash_amount,
                     note = note,
@@ -658,10 +682,15 @@ def create_payment(request):
                     owner = user
                 )
                 new_payment.save()
+                
                 if debit_card_amount:
-                    user_debit_card.reminder = int(user_debit_card.reminder) - int(debit_card_amount)
+                    user_debit_card.reminder = user_debit_card.reminder - float(debit_card_amount)
                     user_debit_card.save()
-                    print(user_debit_card.reminder)
+                    
+                if cash_amount:
+                    user_cash.reminder = user_cash.reminder - float(cash_amount)
+                    user_cash.save()
+                    
             except IntegrityError as e:
                 print(e)
                 messages.error(request, "Something went wrong. Try again later.")
