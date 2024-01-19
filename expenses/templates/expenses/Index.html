@@ -13,7 +13,7 @@
             <div class="d-flex flex-column align-items-center">
                 <div class="d-flex flex-column align-items-center mt-2">
                     <div class="text-center mb-2" style="color:var(--dark-yellow);">
-                        Select month and year to display your previous payments
+                        Select month, year and currency to display your previous payments
                     </div>
                     <input class="form-control w-auto" type="month" max="{{ current_month_year|date:'Y-m' }}" 
                         value="{{ selected_month_year|date:'Y-m' }}" name="select_month"
@@ -49,15 +49,49 @@
                                     <td>{{ payment.note }}</td>
                                     <td>{% if payment.credit_card_amount %} {{ payment.credit_card.card_name }} {% else %} - {% endif %}</td>
                                     <td>{% if payment.credit_card_amount %} {{ payment.credit_card_amount }} {% else %} - {% endif %}</td>
-                                    <td>{% if payment.cash_amount %} {{ payment.cash.currency }} {% else %} - {% endif %}</td>
+                                    <td>{% if payment.cash_amount %} {{ payment.cash.currency.currency_name }} {% else %} - {% endif %}</td>
                                     <td>{% if payment.cash_amount %} {{ payment.cash_amount }} {% else %} - {% endif %}</td>
                                     <td>{% if payment.debit_card_amount %} {{ payment.debit_card.card_name }} {% else %} - {% endif %}</td>
                                     <td>{% if payment.debit_card_amount %} {{ payment.debit_card_amount }} {% else %} - {% endif %}</td>
                                 </tr>
                             {% endfor %}
+                            
                         </tbody>
                     </table>
                 {% endif %}
+
+                <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
+                    Total paid in {{ current_month }} {{ current_year }}
+                </div>
+
+                <table class="table shadow w-auto">
+                    <thead>
+                        <tr>
+                            <th scope="col">Payment method</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="table-group-divider">
+                        {% for el in current_credit_card_sum %}
+                            <tr>
+                                <td>{{ el.credit_card__card_name }}</td>
+                                <td>{{ el.sum_credit_cards }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Cash, {{ payment.cash.currency.currency_name }}</td>
+                            <td>{{ current_cash_sum }}</td>    
+                        </tr>
+                        {% for el in current_debit_card_sum %}
+                            <tr>
+                                <td>{{ el.debit_card__card_name }}</td>
+                                <td>{{ el.sum_debit_cards }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
 
                 {% if selected_payments %}
                     
@@ -90,7 +124,7 @@
                                     <td>{{ selected_payment.note }}</td>
                                     <td>{% if selected_payment.credit_card_amount %} {{ selected_payment.credit_card.card_name }} {% else %} - {% endif %}</td>
                                     <td>{% if selected_payment.credit_card_amount %} {{ selected_payment.credit_card_amount }} {% else %} - {% endif %}</td>
-                                    <td>{% if selected_payment.cash_amount %} {{ selected_payment.cash.currency }} {% else %} - {% endif %}</td>
+                                    <td>{% if selected_payment.cash_amount %} {{ selected_payment.cash.currency.currency_name }} {% else %} - {% endif %}</td>
                                     <td>{% if selected_payment.cash_amount %} {{ selected_payment.cash_amount }} {% else %} - {% endif %}</td>
                                     <td>{% if selected_payment.debit_card_amount %} {{ selected_payment.debit_card.card_name }} {% else %} - {% endif %}</td>
                                     <td>{% if selected_payment.debit_card_amount %} {{ selected_payment.debit_card_amount }} {% else %} - {% endif %}</td>
@@ -102,20 +136,32 @@
                     <div class="mt-4 mb-2" style="color:var(--dark-yellow);">
                         Total paid in {{ selected_month }} {{ selected_year }}
                     </div>
-
-                    <table class="table container shadow">
+    
+                    <table class="table shadow w-auto">
                         <thead>
                             <tr>
                                 <th scope="col">Payment method</th>
                                 <th scope="col">Total</th>
                             </tr>
                         </thead>
-
+    
                         <tbody class="table-group-divider">
+                            {% for el in selected_credit_card_sum %}
+                                <tr>
+                                    <td>{{ el.credit_card__card_name }}</td>
+                                    <td>{{ el.sum_credit_cards }}</td>
+                                </tr>
+                            {% endfor %}
                             <tr>
-                                <td></td>
-                                <td></td>
+                                <td>Cash, </td>
+                                <td>{{ selected_cash_sum }}</td>    
                             </tr>
+                            {% for el in selected_debit_card_sum %}
+                                <tr>
+                                    <td>{{ el.debit_card__card_name }}</td>
+                                    <td>{{ el.sum_debit_cards }}</td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
 

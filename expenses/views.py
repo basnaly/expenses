@@ -14,6 +14,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import update_session_auth_hash
 from datetime import datetime
 import calendar
+from django.db.models import Sum
 
 
 def index(request):
@@ -26,22 +27,23 @@ def index(request):
         selected_date = today
         user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
         
-        # curent_list_payments = []
-        # for el in user_payments:
-        #     if el.credit_card not in curent_list_payments:
-        #         curent_list_payments.append(el.credit_card)
-        #     if el.cash not in curent_list_payments:
-        #         curent_list_payments.append(el.cash)
-        #     if el.debit_card not in curent_list_payments:
-        #         curent_list_payments.append(el.debit_card)  
-            
-        # for el in curent_list_payments:
-        #     if isinstance(el, CreditCard):
-        #         print(el)
-        #         print("----")
-        #         list_paiments_by_card_el = [el1 for el1 in user_payments if el1.credit_card.id == el.id and el1.credit_card_amount]
-        #         print(list_paiments_by_card_el)
+        # Calculate sum of credit cards for current month 
+        current_credit_card_sum = (Payment.objects
+                  .filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+                  .values('credit_card__card_name')
+                  .annotate(sum_credit_cards=Sum('credit_card_amount'))
+                  .order_by())
+        # print(current_credit_card_sum)
+    
+        # Calculate sum of cash for current month
+        current_cash_sum = sum([el.cash_amount for el in user_payments if el.cash_amount])
         
+        # Calculate sum of debit cards for current month
+        current_debit_card_sum = (Payment.objects
+                  .filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+                  .values('debit_card__card_name')
+                  .annotate(sum_debit_cards=Sum('debit_card_amount'))
+                  .order_by())
 
         # get payments for selected month
         selected_month = request.GET.get("month")
@@ -53,6 +55,26 @@ def index(request):
             selected_date = datetime.strptime(f"01-{selected_month}-{selected_year}", "%d-%m-%Y") # "2023-02-01 00:00:00"
             selected_month = int(selected_month) # 1
             user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+            
+        # Calculate sum of credit cards for selected month 
+        selected_credit_card_sum = (Payment.objects
+                  .filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+                  .values('credit_card__card_name')
+                  .annotate(sum_credit_cards=Sum('credit_card_amount'))
+                  .order_by())
+        print(selected_credit_card_sum)
+    
+        # Calculate sum of cash for selected month
+        selected_cash_sum = sum([el.cash_amount for el in user_selected_payments if el.cash_amount])
+        # print(selected_cash_sum)
+        
+        # Calculate sum of debit cards for selected month
+        selected_debit_card_sum = (Payment.objects
+                  .filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+                  .values('debit_card__card_name')
+                  .annotate(sum_debit_cards=Sum('debit_card_amount'))
+                  .order_by())
+        # print(selected_debit_card_sum)
         
         return render(request, "expenses/index.html", {
             "payments": user_payments,
@@ -62,7 +84,13 @@ def index(request):
             "selected_month": calendar.month_name[selected_month or current_month], # "December"
             "selected_year": selected_year, # "2023"
             "selected_month_year": selected_date or None,
-            "current_month_year": today # "2024-01-09 15:22:00"  
+            "current_month_year": today, # "2024-01-09 15:22:00"
+            "current_credit_card_sum": current_credit_card_sum,
+            "current_cash_sum": current_cash_sum,
+            "current_debit_card_sum": current_debit_card_sum,
+            "selected_credit_card_sum": selected_credit_card_sum,
+            "selected_cash_sum": selected_cash_sum, 
+            "selected_debit_card_sum": selected_debit_card_sum
         })
     else:
         return render(request, "expenses/index.html", {})
