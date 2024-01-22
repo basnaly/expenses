@@ -15,9 +15,19 @@
                     <div class="text-center mb-2" style="color:var(--dark-yellow);">
                         Select month, year and currency to display your previous payments
                     </div>
-                    <input class="form-control w-auto" type="month" max="{{ current_month_year|date:'Y-m' }}" 
-                        value="{{ selected_month_year|date:'Y-m' }}" name="select_month"
-                        id="selectMonth" onchange="getMonthAndYear()">
+                    <div class="d-flex">
+                        <input class="form-control me-3" type="month" max="{{ current_month_year|date:'Y-m' }}" 
+                            value="{{ selected_month_year|date:'Y-m' }}" name="select_month"
+                            id="selectMonth" onchange="getMonthAndYear()">
+                        
+                        <select class="form-select ms-3" onchange="getCurrency()" id="selectCurrency">
+                            {% for currency in currency_list %}
+                                <option value="{{ currency.id }}" {% if selected_currency_id == currency.id %}selected{% endif %} >
+                                    {{ currency.currency_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
                 {% if payments %}

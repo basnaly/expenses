@@ -17,6 +17,8 @@ import calendar
 from django.db.models import Sum
 
 
+DEFAULT_CURRENCY = 1
+
 def index(request):
     # get payments for current month
     if request.user.is_authenticated:
@@ -25,11 +27,13 @@ def index(request):
         current_month = today.month # "1"
         current_year = today.year # "2024"
         selected_date = today
-        user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+        selected_currency_id = request.GET.get("currency", DEFAULT_CURRENCY)
+        
+        selected_currency = Currency.objects.get(owner=user, id=selected_currency_id)
+        user_payments = Payment.objects.filter(owner=user, payment_date__month=current_month, payment_date__year=current_year, currency=selected_currency)
         
         # Calculate sum of credit cards for current month 
-        current_credit_card_sum = (Payment.objects
-                  .filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+        current_credit_card_sum = (user_payments
                   .values('credit_card__card_name')
                   .annotate(sum_credit_cards=Sum('credit_card_amount'))
                   .order_by())
@@ -39,8 +43,7 @@ def index(request):
         current_cash_sum = sum([el.cash_amount for el in user_payments if el.cash_amount])
         
         # Calculate sum of debit cards for current month
-        current_debit_card_sum = (Payment.objects
-                  .filter(owner=user, payment_date__month=current_month, payment_date__year=current_year)
+        current_debit_card_sum = (user_payments
                   .values('debit_card__card_name')
                   .annotate(sum_debit_cards=Sum('debit_card_amount'))
                   .order_by())
@@ -49,32 +52,37 @@ def index(request):
         selected_month = request.GET.get("month")
         selected_year = request.GET.get("year")
         user_selected_payments = []
+        
+        selected_credit_card_sum = []
+        selected_cash_sum = None
+        selected_debit_card_sum = []
     
         # if user selected month and year
         if selected_month and selected_year:
             selected_date = datetime.strptime(f"01-{selected_month}-{selected_year}", "%d-%m-%Y") # "2023-02-01 00:00:00"
             selected_month = int(selected_month) # 1
-            user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
+            user_selected_payments = Payment.objects.filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year, currency=selected_currency)
             
-        # Calculate sum of credit cards for selected month 
-        selected_credit_card_sum = (Payment.objects
-                  .filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
-                  .values('credit_card__card_name')
-                  .annotate(sum_credit_cards=Sum('credit_card_amount'))
-                  .order_by())
-        print(selected_credit_card_sum)
+            # Calculate sum of credit cards for selected month 
+            selected_credit_card_sum = (user_selected_payments
+                    .values('credit_card__card_name')
+                    .annotate(sum_credit_cards=Sum('credit_card_amount'))
+                    .order_by())
+            # print(selected_credit_card_sum)
     
-        # Calculate sum of cash for selected month
-        selected_cash_sum = sum([el.cash_amount for el in user_selected_payments if el.cash_amount])
-        # print(selected_cash_sum)
+            # Calculate sum of cash for selected month
+            selected_cash_sum = sum([el.cash_amount for el in user_selected_payments if el.cash_amount])
+            # print(selected_cash_sum)
         
-        # Calculate sum of debit cards for selected month
-        selected_debit_card_sum = (Payment.objects
-                  .filter(owner=user, payment_date__month=selected_month, payment_date__year=selected_year)
-                  .values('debit_card__card_name')
-                  .annotate(sum_debit_cards=Sum('debit_card_amount'))
-                  .order_by())
-        # print(selected_debit_card_sum)
+            # Calculate sum of debit cards for selected month
+            selected_debit_card_sum = (user_selected_payments
+                    .values('debit_card__card_name')
+                    .annotate(sum_debit_cards=Sum('debit_card_amount'))
+                    .order_by())
+            # print(selected_debit_card_sum)
+        
+        # List of currencies
+        currency_list = Currency.objects.filter(owner=user)
         
         return render(request, "expenses/index.html", {
             "payments": user_payments,
@@ -90,7 +98,9 @@ def index(request):
             "current_debit_card_sum": current_debit_card_sum,
             "selected_credit_card_sum": selected_credit_card_sum,
             "selected_cash_sum": selected_cash_sum, 
-            "selected_debit_card_sum": selected_debit_card_sum
+            "selected_debit_card_sum": selected_debit_card_sum,
+            "currency_list": currency_list,
+            "selected_currency_id": int(selected_currency_id)
         })
     else:
         return render(request, "expenses/index.html", {})
